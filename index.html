@@ -34,7 +34,7 @@
 <div id="game"></div><iframe id="songPlayer" style="position:fixed;width:1px;height:1px;left:-10px;bottom:-10px;border:0;opacity:.01;pointer-events:none" allow="autoplay; encrypted-media" src="https://www.youtube.com/embed/yJBsSlB91Bc?enablejsapi=1&autoplay=0&loop=1&playlist=yJBsSlB91Bc&controls=0&playsinline=1"></iframe><iframe id="stingSound" style="position:fixed;width:1px;height:1px;left:-10px;bottom:-10px;border:0;opacity:.01;pointer-events:none" allow="autoplay; encrypted-media" src="https://www.youtube.com/embed/fXhjJpDi2YI?enablejsapi=1&autoplay=0&controls=0&playsinline=1"></iframe>
 <div class="hud"><div class="logo">CHAPRI <span>RUN</span></div><div class="stats">
 <div class="stat"><label>SCORE</label><b id="score">00000</b></div><div class="stat"><label>STING</label><b class="cash" id="coins">0</b></div><div class="stat"><label>BEST</label><b id="best">00000</b></div><div class="stat"><label>SPEED</label><b class="cash" id="speed">1.0x</b></div></div></div>
-<div class="screen" id="menu"><div class="card"><div class="eyebrow">3D INDIAN STREET CHAOS</div><div class="title">CHAPRI <span>RUN</span></div><p>Autos. Dogs. Scooters. Roadblocks. Grab <b style="color:#ffd32f">STING</b> cans, dodge traffic and outrun the police.</p><div id="characterSelect" style="display:flex;gap:7px;justify-content:center;margin:0 0 14px;flex-wrap:wrap"></div><button class="start" id="start" type="button">START THE RUN →</button>
+<div class="screen" id="menu"><div class="card"><div class="eyebrow">3D INDIAN STREET CHAOS</div><div class="title">CHAPRI <span>RUN</span></div><p>Autos. Dogs. Scooters. Roadblocks. Grab <b style="color:#ffd32f">STING</b> cans, dodge traffic and outrun the police.</p><div id="characterSelect" style="display:flex;gap:7px;justify-content:center;margin:0 0 14px;flex-wrap:wrap"></div><div style="margin:0 0 10px;text-align:center;color:#777;font:900 8px Arial;letter-spacing:2px">SELECT MAP</div><div id="mapSelect" style="display:flex;gap:7px;justify-content:center;margin:0 0 14px;flex-wrap:wrap"></div><button class="start" id="start" type="button">START THE RUN →</button>
 <div id="missionBox" style="margin-top:13px;padding:10px;border:1px solid #ffffff18;border-radius:10px;background:#0b0c09;color:#aaa;font:900 9px Arial;letter-spacing:1px">MISSION: SURVIVE 20s</div>
 <div id="shopBox" style="display:flex;gap:6px;justify-content:center;margin-top:8px;flex-wrap:wrap"></div><div class="hint">PC: A/D or ←/→ · W/↑/Space jump · S/↓ slide<br>Mobile: swipe or use the action controls</div></div></div>
 <div class="screen hide" id="gameover"><div class="card"><div class="eyebrow">TRAFFIC POLICE REPORT</div><div class="title" id="overTitle">COOKED.</div><p id="overText"></p><button class="start" id="again">RUN IT BACK ↗</button><div class="hint">Best score is saved on this device.</div></div></div>
@@ -80,17 +80,60 @@ scene.add(new THREE.HemisphereLight(0xffe0bd,0x242629,2.1));const sun=new THREE.
 const mat=(c,r=.8,m=0)=>new THREE.MeshStandardMaterial({color:c,roughness:r,metalness:m});
 const road=mat(0x343633,1),dirt=mat(0x57412c,1),yellow=mat(0xffd32f,.4),red=mat(0xd92e36,.65),green=mat(0x168451,.7),black=mat(0x111212,.8),skin=mat(0xb87350,.9);
 function addMesh(g,geo,material,p){const o=new THREE.Mesh(geo,material);o.position.set(...p);o.castShadow=true;o.receiveShadow=true;g.add(o);return o}
-function cube(w,h,d,m,x,y,z){return addMesh(scene,new THREE.BoxGeometry(w,h,d),m,[x,y,z])}
+function cube(w,h,d,m,x,y,z){const o=addMesh(scene,new THREE.BoxGeometry(w,h,d),m,[x,y,z]);o.userData.mapId=1;return o}
 cube(15,.25,190,road,0,-.15,-58);cube(18,.5,190,dirt,-16,-.05,-58);cube(18,.5,190,dirt,16,-.05,-58);
 const laneX=[-2.7,0,2.7],roadMarks=[];
 for(const x of [-1.35,1.35])for(let i=0;i<38;i++){const l=cube(.09,.025,2.6,yellow,x,.02,-i*5-3);roadMarks.push(l)}
 function building(x,z,h,w,c){cube(w,h,8,mat(c,1),x,h/2,z);for(let yy=2;yy<h-1;yy+=2.25)for(let xx=-w/2+1;xx<w/2-.5;xx+=1.9)cube(.55,.68,.06,mat(0xffc75d,.4),x+xx,yy,z-4.03)}
 for(let i=0;i<25;i++){const z=-i*8-12;building(-11-Math.random()*4,z,5+Math.random()*9,5+Math.random()*4,0x594032+Math.floor(Math.random()*0x222222));building(11+Math.random()*4,z-3,5+Math.random()*9,5+Math.random()*4,0x463a31+Math.floor(Math.random()*0x222222))}
-function sign(x,z,text){const cv=document.createElement('canvas');cv.width=512;cv.height=128;const c=cv.getContext('2d');c.fillStyle='#171713';c.fillRect(0,0,512,128);c.fillStyle='#ffd32f';c.font='bold 58px Arial';c.textAlign='center';c.fillText(text,256,82);const sp=new THREE.Sprite(new THREE.SpriteMaterial({map:new THREE.CanvasTexture(cv),transparent:true}));sp.position.set(x,4.2,z);sp.scale.set(5.5,1.38,1);scene.add(sp)}
+function sign(x,z,text){const cv=document.createElement('canvas');cv.width=512;cv.height=128;const c=cv.getContext('2d');c.fillStyle='#171713';c.fillRect(0,0,512,128);c.fillStyle='#ffd32f';c.font='bold 58px Arial';c.textAlign='center';c.fillText(text,256,82);const sp=new THREE.Sprite(new THREE.SpriteMaterial({map:new THREE.CanvasTexture(cv),transparent:true}));sp.userData.mapId=1;sp.position.set(x,4.2,z);sp.scale.set(5.5,1.38,1);scene.add(sp)}
 sign(-7,-18,'PAN MASALA');sign(7,-34,'CHAI • COLD DRINK');sign(-7,-57,'STING KING');
 const poleMat=mat(0x272522,.8);
-for(const side of [-1,1])for(let i=0;i<12;i++){const z=-i*15-5,x=side*8.2;const pole=new THREE.Mesh(new THREE.CylinderGeometry(.08,.11,6.5,8),poleMat);pole.position.set(x,3.25,z);scene.add(pole);const lamp=new THREE.Mesh(new THREE.BoxGeometry(1.2,.08,.08),poleMat);lamp.position.set(x-side*.55,6.1,z);scene.add(lamp)}
-for(const side of [-1,1])for(let i=0;i<10;i++){const z=-i*18-9,x=side*7.2;const stall=new THREE.Mesh(new THREE.BoxGeometry(3.2,2.1,3.5),mat(side<0?0x9b542e:0x405b45,1));stall.position.set(x,1.05,z);scene.add(stall);const awn=new THREE.Mesh(new THREE.BoxGeometry(3.5,.35,3.8),mat(0xd93b32,.65));awn.position.set(x,2.25,z);scene.add(awn)}
+for(const side of [-1,1])for(let i=0;i<12;i++){const z=-i*15-5,x=side*8.2;const pole=new THREE.Mesh(new THREE.CylinderGeometry(.08,.11,6.5,8),poleMat);pole.userData.mapId=1;pole.position.set(x,3.25,z);scene.add(pole);const lamp=new THREE.Mesh(new THREE.BoxGeometry(1.2,.08,.08),poleMat);lamp.userData.mapId=1;lamp.position.set(x-side*.55,6.1,z);scene.add(lamp)}
+for(const side of [-1,1])for(let i=0;i<10;i++){const z=-i*18-9,x=side*7.2;const stall=new THREE.Mesh(new THREE.BoxGeometry(3.2,2.1,3.5),mat(side<0?0x9b542e:0x405b45,1));stall.userData.mapId=1;stall.position.set(x,1.05,z);scene.add(stall);const awn=new THREE.Mesh(new THREE.BoxGeometry(3.5,.35,3.8),mat(0xd93b32,.65));awn.userData.mapId=1;awn.position.set(x,2.25,z);scene.add(awn)}
+
+
+// MAP 2 — AHMEDABAD NIGHT MARKET
+const map2=new THREE.Group();map2.visible=false;scene.add(map2);
+const m2Road=mat(0x151a20,.96),m2Side=mat(0x25212a,1),m2Yellow=mat(0xffd21f,.35),m2Neon=mat(0x10d9d2,.25,.35),m2Pink=mat(0xff3d81,.28,.3);
+function m2cube(w,h,d,m,x,y,z){const o=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),m);o.position.set(x,y,z);o.castShadow=true;o.receiveShadow=true;map2.add(o);return o}
+m2cube(15,.25,190,m2Road,0,-.15,-58);m2cube(18,.5,190,m2Side,-16,-.05,-58);m2cube(18,.5,190,m2Side,16,-.05,-58);
+for(const x of [-1.35,1.35])for(let i=0;i<38;i++)m2cube(.1,.025,2.6,m2Yellow,x,.02,-i*5-3);
+function m2building(x,z,h,w,color){
+ m2cube(w,h,8,mat(color,.9),x,h/2,z);
+ for(let yy=1.8;yy<h-1;yy+=2.1)for(let xx=-w/2+1;xx<w/2-.5;xx+=1.8)m2cube(.62,.7,.06,mat(0x24d9d0,.25,.2),x+xx,yy,z-4.04);
+}
+for(let i=0;i<25;i++){
+ const z=-i*8-12;
+ m2building(-11-Math.random()*4,z,6+Math.random()*10,5+Math.random()*4,0x202a35+Math.floor(Math.random()*0x161820));
+ m2building(11+Math.random()*4,z-3,5+Math.random()*11,5+Math.random()*4,0x29222f+Math.floor(Math.random()*0x17141b));
+}
+function m2sign(x,z,label,color){
+ const cv=document.createElement('canvas');cv.width=640;cv.height=160;const ctx=cv.getContext('2d');
+ ctx.fillStyle='#090b10';ctx.fillRect(0,0,640,160);ctx.strokeStyle=color;ctx.lineWidth=5;ctx.strokeRect(7,7,626,146);
+ ctx.fillStyle=color;ctx.font='900 54px Arial';ctx.textAlign='center';ctx.fillText(label,320,103);
+ const sp=new THREE.Sprite(new THREE.SpriteMaterial({map:new THREE.CanvasTexture(cv),transparent:true}));
+ sp.position.set(x,4.4,z);sp.scale.set(6.2,1.55,1);map2.add(sp);
+}
+m2sign(-7,-18,'NIGHT CHAI','#10d9d2');m2sign(7,-34,'STING ZONE','#ffcf24');m2sign(-7,-57,'OLD CITY','#ff3d81');m2sign(7,-82,'NO SIGNAL','#b7a4ff');
+for(const side of [-1,1])for(let i=0;i<12;i++){
+ const z=-i*15-5,x=side*8.2;
+ const pole=m2cube(.12,6.6,.12,mat(0x15181d,.6,.5),x,3.25,z);
+ const lamp=m2cube(1.4,.1,.12,mat(0x10d9d2,.25,.3),x-side*.55,6.25,z);
+}
+for(const side of [-1,1])for(let i=0;i<10;i++){
+ const z=-i*18-9,x=side*7.2;
+ m2cube(3.3,2.2,3.5,mat(i%2?0x202d3a:0x302230,1),x,1.1,z);
+ m2cube(3.6,.3,3.8,mat(i%2?0x10d9d2:0xff3d81,.35,.2),x,2.28,z);
+}
+function setMap(id){
+ selectedMap=id;
+ document.querySelectorAll('#mapSelect button').forEach((b,i)=>b.classList.toggle('active',i===id));
+ scene.traverse(o=>{if(o.userData&&o.userData.mapId===1)o.visible=id===0});
+ map2.visible=id===1;
+ if(id===0){scene.background.set(0x9a6142);scene.fog.color.set(0x9a6142);scene.fog.near=28;scene.fog.far=125}
+ else {scene.background.set(0x070a12);scene.fog.color.set(0x070a12);scene.fog.near=24;scene.fog.far=115}
+}
 
 function capsule(g,rad,len,m,p){return addMesh(g,new THREE.CapsuleGeometry(rad,len,6,10),m,p)}
 const shirt=mat(0xf02f59,.72),jeans=mat(0x17243d,.8),skinPlayer=mat(0xb87350,.9),shoes=mat(0x101010,.75),hair=mat(0x18120f,.9),gold=mat(0xffd43b,.35,.25),white=mat(0xf3f0e8,.75),lenses=mat(0x08090b,.2,.4);
@@ -106,6 +149,7 @@ const characters=[
 {name:'KALU',shirt:0x111111,jeans:0x303030,skin:0x8e563d,hair:0x100d0b,glasses:true,chain:false,speed:.95,ability:'TANK'}
 ];
 let selectedCharacter=0;
+let selectedMap=0;
 const currentChar=()=>characters[selectedCharacter];
 const npcs=[];
 const selectBox=$('characterSelect');
@@ -184,6 +228,7 @@ function startGame(){
     player.position.set(0,0,3);player.rotation.set(0,0,0);player.scale.set(1,1,1);
     camera.position.set(0,4.8,10.5);
     applyCharacter();
+    setMap(selectedMap);
     try{startMusic()}catch(e){console.warn('Music unavailable:',e)}
     $('menu').classList.add('hide');
     $('gameover').classList.add('hide');
@@ -277,6 +322,7 @@ function initChapriShop(){
  });
 }
 initChapriShop();
+initMapSelect();
 </script>
 </body>
 </html>
