@@ -54,17 +54,19 @@ window.addEventListener('error',function(e){
   if(l){l.classList.add('hide');}
   const m=document.getElementById('menu');
   if(m){m.classList.remove('hide');}
+  const p=document.querySelector('#menu .card p');
+  if(p)p.innerHTML='<b style="color:#ff5b5b">ENGINE ERROR</b><br>'+String(e.message||'Could not start the 3D engine').slice(0,180);
 });
 setTimeout(function(){
   if(!window.__chapriBooted){
     const l=document.getElementById('loading'); if(l) l.classList.add('hide');
     const p=document.querySelector('#menu .card p');
-    if(p) p.innerHTML='<b style="color:#ffd32f">GAME ENGINE STARTING…</b><br>If the screen does not respond, refresh once.';
+    if(p) p.innerHTML='<b style="color:#ffd32f">GAME ENGINE ERROR</b><br>Refresh once if this persists.';
   }
 },4000);
 </script>
 <script type="module">
-import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.161/build/three.module.js';
+import * as THREE from 'https://unpkg.com/three@0.161.0/build/three.module.js';
 
 const $=id=>document.getElementById(id);
 const scene=new THREE.Scene();scene.background=new THREE.Color(0x9a6142);scene.fog=new THREE.Fog(0x9a6142,28,125);
