@@ -226,7 +226,6 @@ $('missionBox').textContent='MISSION: SURVIVE 20s · +25 STING';
 
 
 setTimeout(()=>npcs.forEach((n,i)=>{n.traverse(o=>{if(o.isMesh)o.frustumCulled=false});}),100);
-<script>
 function initChapriShop(){
  const box=document.getElementById('shopBox'); if(!box)return;
  box.innerHTML='';
@@ -244,7 +243,6 @@ function initChapriShop(){
    box.appendChild(b);
  });
 }
-</script>
-<script>initChapriShop();</script>
+initChapriShop();
 </body>
 </html>
