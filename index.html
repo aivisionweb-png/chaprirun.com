@@ -48,6 +48,7 @@
 <button id="music" style="position:fixed;z-index:9;right:16px;bottom:16px;border:1px solid #ffffff25;background:#111c;color:#ffd32f;border-radius:999px;padding:9px 12px;font:900 10px Arial;letter-spacing:1px">♫ MUSIC</button><div id="deathFX"></div>
 <script>
 window.__chapriBooted=false;
+window.__threeLoadError=false;
 window.addEventListener('error',function(e){
   console.error('CHAPRI RUN boot error:',e.error||e.message);
   const l=document.getElementById('loading');
@@ -61,11 +62,13 @@ setTimeout(function(){
   if(!window.__chapriBooted){
     const l=document.getElementById('loading'); if(l) l.classList.add('hide');
     const p=document.querySelector('#menu .card p');
-    if(p) p.innerHTML='<b style="color:#ffd32f">GAME ENGINE ERROR</b><br>Refresh once if this persists.';
+    if(p) p.innerHTML='<b style="color:#ff5b5b">ENGINE ERROR</b><br>'+(
+      window.__threeLoadError ? 'Three.js CDN failed to load.' : 'Game script did not finish booting.'
+    )+'<br><small>Try refreshing once.</small>';
   }
-},4000);
+},5000);
 </script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r160/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js" onerror="window.__threeLoadError=true"></script>
 <script>
 /* Classic Three.js boot: avoids ES-module startup failures on static hosts. */
 
