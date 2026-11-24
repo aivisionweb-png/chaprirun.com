@@ -91,12 +91,12 @@ function buildPlayer(){
   animated.length=0;
   const ch=currentChar();
   const shirtM=mat(ch.shirt,.66),jeansM=mat(ch.jeans,.8),skinM=mat(ch.skin,.9),hairM=mat(ch.hair,.82);
-  const bodyScale=ch.ability==='TANK'?1.08:ch.ability==='RAGE'?.98:1;
+  const bodyScale=ch.ability==='TANK' ? 1.08 : ch.ability==='RAGE' ? .98 : 1;
   torso=addMesh(player,new THREE.BoxGeometry(.9*bodyScale,1.15*bodyScale,.55),shirtM,[0,1.5*bodyScale,0]);torso.rotation.x=.05;
   addMesh(player,new THREE.TorusGeometry(.22,.035,8,24),white,[0,1.82*bodyScale,.29]);player.children[player.children.length-1].rotation.x=Math.PI/2;
   addMesh(player,new THREE.SphereGeometry(.38*bodyScale,20,16),skinM,[0,2.38*bodyScale,0]);
   addMesh(player,new THREE.SphereGeometry(.41*bodyScale,20,12,0,Math.PI*2,0,Math.PI*.55),hairM,[0,2.56*bodyScale,0]);
-  const tuft=addMesh(player,new THREE.ConeGeometry(ch.ability==='RAGE'?.2:.17,ch.ability==='RAGE'?.5:.36,7),hairM,[.08,2.86*bodyScale,0]);tuft.rotation.z=ch.ability==='LUCK'?.12:-.28;
+  const tuft=addMesh(player,new THREE.ConeGeometry(ch.ability==='RAGE' ? .2 : .17,ch.ability==='RAGE' ? .5 : .36,7),hairM,[.08,2.86*bodyScale,0]);tuft.rotation.z=ch.ability==='LUCK' ? .12 : -.28;
   for(const sx of [-1,1]){
     if(ch.glasses){const g=addMesh(player,new THREE.BoxGeometry(.24,.12,.05),lenses,[sx*.15,2.4*bodyScale,.34]);g.rotation.z=sx*.02}
     const arm=capsule(player,.13,.62,shirtM,[sx*.54*bodyScale,1.53*bodyScale,0]);arm.rotation.z=sx*.32;arm.userData.arm=sx;animated.push(arm);
