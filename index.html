@@ -30,13 +30,13 @@
 </head>
 <body>
 <div class="loading" id="loading"><div><b>CHAPRI RUN</b><small>LOADING THE STREET...</small></div></div>
-<div id="game"></div>
+<div id="game"></div><iframe id="songPlayer" style="position:fixed;width:1px;height:1px;left:-10px;bottom:-10px;border:0;opacity:.01;pointer-events:none" allow="autoplay; encrypted-media" src="https://www.youtube.com/embed/yJBsSlB91Bc?enablejsapi=1&autoplay=0&loop=1&playlist=yJBsSlB91Bc&controls=0&playsinline=1"></iframe>
 <div class="hud"><div class="logo">CHAPRI <span>RUN</span></div><div class="stats">
 <div class="stat"><label>SCORE</label><b id="score">00000</b></div><div class="stat"><label>STING</label><b class="cash" id="coins">0</b></div><div class="stat"><label>BEST</label><b id="best">00000</b></div><div class="stat"><label>SPEED</label><b class="cash" id="speed">1.0x</b></div></div></div>
 <div class="screen" id="menu"><div class="card"><div class="eyebrow">3D INDIAN STREET CHAOS</div><div class="title">CHAPRI <span>RUN</span></div><p>Autos. Dogs. Scooters. Roadblocks. Grab <b style="color:#ffd32f">STING</b> cans, dodge traffic and outrun the police.</p><button class="start" id="start">START THE RUN →</button><div class="hint">PC: A/D or ←/→ · W/↑/Space jump · S/↓ slide<br>Mobile: swipe or use the action controls</div></div></div>
 <div class="screen hide" id="gameover"><div class="card"><div class="eyebrow">TRAFFIC POLICE REPORT</div><div class="title" id="overTitle">COOKED.</div><p id="overText"></p><button class="start" id="again">RUN IT BACK ↗</button><div class="hint">Best score is saved on this device.</div></div></div>
 <div class="touch"><button id="left" aria-label="Left">←</button><button id="jump" aria-label="Jump">↑</button><button id="slide" aria-label="Slide">↓</button><button id="right" aria-label="Right">→</button></div>
-<div class="tag">NO BRAKES · NO SHAME · STING ENERGY</div>
+<div class="tag">NO BRAKES · NO SHAME · STING ENERGY · STREET CREW</div>
 <div id="ability"><span id="abilityName">SHIELD</span><b id="abilityTime">READY</b></div>
 <div id="chase"><div class="ct"><span>POLICE CHASE</span><b id="chaseText">0%</b></div><div class="bar"><i id="chaseBar"></i></div></div>
 <button id="music" style="position:fixed;z-index:9;right:16px;bottom:16px;border:1px solid #ffffff25;background:#111c;color:#ffd32f;border-radius:999px;padding:9px 12px;font:900 10px Arial;letter-spacing:1px">♫ MUSIC</button><div id="deathFX"></div>
@@ -66,6 +66,14 @@ for(const side of [-1,1])for(let i=0;i<10;i++){const z=-i*18-9,x=side*7.2;const 
 
 function capsule(g,rad,len,m,p){return addMesh(g,new THREE.CapsuleGeometry(rad,len,6,10),m,p)}
 const shirt=mat(0xf02f59,.72),jeans=mat(0x17243d,.8),shoes=mat(0x101010,.75),hair=mat(0x18120f,.9),gold=mat(0xffd43b,.35,.25),white=mat(0xf3f0e8,.75),lenses=mat(0x08090b,.2,.4);
+function makeNPC(style){const g=new THREE.Group();const skinN=mat(style.skin,.9),shirtN=mat(style.shirt,.7),pantsN=mat(style.pants,.8),hairN=mat(style.hair,.85),glassN=mat(0x101010,.2,.45);addMesh(g,new THREE.BoxGeometry(.72,1,.45),shirtN,[0,1.25,0]);addMesh(g,new THREE.SphereGeometry(.31,18,14),skinN,[0,1.95,0]);addMesh(g,new THREE.SphereGeometry(.34,18,10,0,Math.PI*2,0,Math.PI*.55),hairN,[0,2.08,0]);if(style.glasses){addMesh(g,new THREE.BoxGeometry(.22,.11,.035),glassN,[-.12,1.98,.28]);addMesh(g,new THREE.BoxGeometry(.22,.11,.035),glassN,[.12,1.98,.28])}if(style.chain){const ch=addMesh(g,new THREE.TorusGeometry(.18,.025,8,20),gold,[0,1.42,.25]);ch.rotation.x=Math.PI/2}for(const x of [-.18,.18]){capsule(g,.11,.58,pantsN,[x,.53,0]);addMesh(g,new THREE.BoxGeometry(.25,.13,.42),shoes,[x,.12,-.04])}return g}
+const npcStyles=[
+{skin:0xa96749,shirt:0x111111,pants:0x242424,hair:0x15110e,glasses:true,chain:true},
+{skin:0xb97756,shirt:0xff4b39,pants:0x111827,hair:0x17120f,glasses:true,chain:true},
+{skin:0x8e563d,shirt:0x16a56a,pants:0x272727,hair:0x12100e,glasses:false,chain:true}
+];
+const npcs=[];
+[[-7,-22,Math.PI*.08],[7,-44,-Math.PI*.08],[-7,-70,Math.PI*.05]].forEach((p,i)=>{const n=makeNPC(npcStyles[i]);n.position.set(p[0],0,p[1]);n.rotation.y=p[2];scene.add(n);npcs.push(n)});
 const player=new THREE.Group();player.position.set(0,0,3);scene.add(player);
 const torso=addMesh(player,new THREE.BoxGeometry(.9,1.15,.55),shirt,[0,1.5,0]);torso.rotation.x=.05;
 const collar=addMesh(player,new THREE.TorusGeometry(.22,.035,8,24),white,[0,1.82,.29]);collar.rotation.x=Math.PI/2;
@@ -98,9 +106,10 @@ function move(d){if(!running||dead)return;lane=Math.max(0,Math.min(2,lane+d));ta
 function doJump(){if(!running||dead||jumpT>0||slideT>0)return;jumpT=.001}
 function doSlide(){if(!running||dead||jumpT>0)return;slideT=.001}
 function setAbility(type){ability=type;abilityT=type==='shield'?7:type==='magnet'?9:5;$('abilityName').textContent=type.toUpperCase();$('ability').classList.add('show')}
-let audioCtx=null,musicOn=false,musicTimer=null,beat=0;
-function startMusic(){if(musicOn)return;audioCtx=audioCtx||new (window.AudioContext||window.webkitAudioContext)();audioCtx.resume();musicOn=true;$('music').textContent='♫ MUSIC ON';const bass=[55,55,65.41,55,73.42,65.41,55,82.41],lead=[220,246.94,261.63,293.66,261.63,246.94,220,196];function tick(){if(!musicOn)return;const t=audioCtx.currentTime,b=beat%8;const o=audioCtx.createOscillator(),g=audioCtx.createGain();o.type='sawtooth';o.frequency.value=bass[b];g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(.045,t+.015);g.gain.exponentialRampToValueAtTime(.0001,t+.20);o.connect(g).connect(audioCtx.destination);o.start(t);o.stop(t+.22);const l=audioCtx.createOscillator(),lg=audioCtx.createGain();l.type='square';l.frequency.value=lead[b];lg.gain.setValueAtTime(.0001,t);lg.gain.exponentialRampToValueAtTime(.018,t+.02);lg.gain.exponentialRampToValueAtTime(.0001,t+.16);l.connect(lg).connect(audioCtx.destination);l.start(t);l.stop(t+.18);beat++;musicTimer=setTimeout(tick,210)}tick()}
-function stopMusic(){musicOn=false;if(musicTimer)clearTimeout(musicTimer);$('music').textContent='♫ MUSIC OFF'}
+let musicOn=false;
+function ytCommand(func){const f=document.getElementById('songPlayer');f.contentWindow.postMessage(JSON.stringify({event:'command',func,args:[]}),'*')}
+function startMusic(){if(musicOn)return;musicOn=true;ytCommand('playVideo');$('music').textContent='♫ CHAPRI SONG ON'}
+function stopMusic(){musicOn=false;ytCommand('pauseVideo');$('music').textContent='♫ MUSIC OFF'}
 $('music').addEventListener('click',()=>musicOn?stopMusic():startMusic());
 function startGame(){startMusic();obstacles.forEach(cleanup);obstacles.length=0;if(police){scene.remove(police);police=null}running=true;dead=false;lane=1;targetX=0;jumpT=slideT=elapsed=score=cash=chase=0;speed=15;spawnT=.35;ability=null;abilityT=invuln=deathT=0;player.position.set(0,0,3);player.rotation.set(0,0,0);player.scale.set(1,1,1);camera.position.set(0,4.8,10.5);$('menu').classList.add('hide');$('gameover').classList.add('hide');$('ability').classList.remove('show');$('chase').classList.remove('show');$('chaseBar').style.width='0%';$('deathFX').style.animation='none';$('score').textContent='00000';$('coins').textContent='0';$('speed').textContent='1.0x'}
 function die(reason){if(dead)return;dead=true;running=false;deathT=0;$('deathFX').style.animation='hit .65s';$('overTitle').textContent=reason;const finalScore=Math.floor(score);const isBest=finalScore>best;if(isBest){best=finalScore;localStorage.setItem('chapriRunBest',String(best));$('best').textContent=String(best).padStart(5,'0')}$('overText').textContent='Score '+finalScore+' · STING '+cash+' · Best '+best+'. The street had other plans.';setTimeout(()=>$('gameover').classList.remove('hide'),850)}
