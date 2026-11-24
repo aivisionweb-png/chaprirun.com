@@ -192,7 +192,7 @@ function update(dt){
   const dx=Math.abs(o.mesh.position.x-player.position.x),dz=Math.abs(o.z-3);
   if(['auto','dog','scooter','pothole','ball','barrier'].includes(o.type)&&dz<2.8&&dx<2.0&&dz>1.05){nearMisses++;combo++;comboT=2.2;score+=35+combo*10;wanted=Math.min(5,wanted+.18);$('combo').textContent='NEAR MISS ×'+combo+'  +'+(35+combo*10);$('combo').style.opacity='1';setTimeout(()=>{if(comboT<=0)$('combo').style.opacity='0'},650)}
   const close=dz<1.3&&dx<1.12;
-  if(close&&(o.type==='vimal'||o.type==='power')){if(o.type==='vimal'){cash++;score+=100;playStingSound()}else setAbility(o.power);cleanup(o);obstacles.splice(i,1);continue}
+  if(close&&(o.type==='vimal'||o.type==='power')){if(o.type==='vimal'){cash++;score+=100;localStorage.setItem('chapriRunBank',String(Number(localStorage.getItem('chapriRunBank')||0)+1));playStingSound()}else setAbility(o.power);cleanup(o);obstacles.splice(i,1);continue}
   if(Math.abs(o.z-3)<1.05&&Math.abs(o.mesh.position.x-player.position.x)<1.05&&['auto','dog','scooter','pothole','ball','barrier'].includes(o.type)){
    const clear=(o.type==='barrier'?slideT>0.25:jumpT>0.25);
    if(!clear&&invuln<=0){if(ability==='shield'&&abilityT>0){ability=null;abilityT=0;invuln=1.15;$('ability').classList.remove('show')}else die('YOU GOT COOKED')}
@@ -226,6 +226,25 @@ $('missionBox').textContent='MISSION: SURVIVE 20s · +25 STING';
 
 
 setTimeout(()=>npcs.forEach((n,i)=>{n.traverse(o=>{if(o.isMesh)o.frustumCulled=false});}),100);
+<script>
+function initChapriShop(){
+ const box=document.getElementById('shopBox'); if(!box)return;
+ box.innerHTML='';
+ const items=[['NEON SHIRT',120,0x00d9ff],['GOLD LOOK',180,0xffd43b],['BLACKOUT',240,0x111111]];
+ items.forEach(([name,cost,color])=>{
+   const b=document.createElement('button');
+   b.textContent=name+' · '+cost;
+   b.style.cssText='border:1px solid #ffffff22;background:#171812;color:#ffd32f;padding:7px 9px;border-radius:8px;font:900 8px Arial;cursor:pointer';
+   b.onclick=()=>{
+     const have=Number(localStorage.getItem('chapriRunBank')||0);
+     if(have<cost){b.textContent='NEED '+(cost-have)+' STING';setTimeout(()=>b.textContent=name+' · '+cost,900);return}
+     localStorage.setItem('chapriRunBank',String(have-cost));
+     characters[selectedCharacter].shirt=color; applyCharacter(); b.textContent='EQUIPPED ✓';
+   };
+   box.appendChild(b);
+ });
+}
 </script>
+<script>initChapriShop();</script>
 </body>
 </html>
