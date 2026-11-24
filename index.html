@@ -65,18 +65,13 @@ for(const side of [-1,1])for(let i=0;i<12;i++){const z=-i*15-5,x=side*8.2;const 
 for(const side of [-1,1])for(let i=0;i<10;i++){const z=-i*18-9,x=side*7.2;const stall=new THREE.Mesh(new THREE.BoxGeometry(3.2,2.1,3.5),mat(side<0?0x9b542e:0x405b45,1));stall.position.set(x,1.05,z);scene.add(stall);const awn=new THREE.Mesh(new THREE.BoxGeometry(3.5,.35,3.8),mat(0xd93b32,.65));awn.position.set(x,2.25,z);scene.add(awn)}
 
 function capsule(g,rad,len,m,p){return addMesh(g,new THREE.CapsuleGeometry(rad,len,6,10),m,p)}
-const shirt=mat(0xf02f59,.72),jeans=mat(0x17243d,.8),shoes=mat(0x101010,.75),hair=mat(0x18120f,.9),gold=mat(0xffd43b,.35,.25),white=mat(0xf3f0e8,.75),lenses=mat(0x08090b,.2,.4);
+const shirt=mat(0xf02f59,.72),jeans=mat(0x17243d,.8),skin=mat(0xb87350,.9),shoes=mat(0x101010,.75),hair=mat(0x18120f,.9),gold=mat(0xffd43b,.35,.25),white=mat(0xf3f0e8,.75),lenses=mat(0x08090b,.2,.4);
 function makeNPC(style){const g=new THREE.Group();const skinN=mat(style.skin,.9),shirtN=mat(style.shirt,.7),pantsN=mat(style.pants,.8),hairN=mat(style.hair,.85),glassN=mat(0x101010,.2,.45);addMesh(g,new THREE.BoxGeometry(.72,1,.45),shirtN,[0,1.25,0]);addMesh(g,new THREE.SphereGeometry(.31,18,14),skinN,[0,1.95,0]);addMesh(g,new THREE.SphereGeometry(.34,18,10,0,Math.PI*2,0,Math.PI*.55),hairN,[0,2.08,0]);if(style.glasses){addMesh(g,new THREE.BoxGeometry(.22,.11,.035),glassN,[-.12,1.98,.28]);addMesh(g,new THREE.BoxGeometry(.22,.11,.035),glassN,[.12,1.98,.28])}if(style.chain){const ch=addMesh(g,new THREE.TorusGeometry(.18,.025,8,20),gold,[0,1.42,.25]);ch.rotation.x=Math.PI/2}for(const x of [-.18,.18]){capsule(g,.11,.58,pantsN,[x,.53,0]);addMesh(g,new THREE.BoxGeometry(.25,.13,.42),shoes,[x,.12,-.04])}return g}
 const npcStyles=[
 {skin:0xa96749,shirt:0x111111,pants:0x242424,hair:0x15110e,glasses:true,chain:true},
 {skin:0xb97756,shirt:0xff4b39,pants:0x111827,hair:0x17120f,glasses:true,chain:true},
 {skin:0x8e563d,shirt:0x16a56a,pants:0x272727,hair:0x12100e,glasses:false,chain:true}
 ];
-const npcs=[];
-const selectBox=$('characterSelect');
-characters.forEach((ch,i)=>{const b=document.createElement('button');b.textContent=ch.name+' · '+ch.ability;b.style.cssText='border:1px solid #ffffff33;background:#191a16;color:#fff;padding:8px 12px;border-radius:9px;font:900 10px Arial;letter-spacing:1px;cursor:pointer';b.onclick=()=>{selectedCharacter=i;document.querySelectorAll('#characterSelect button').forEach((x,j)=>x.style.background=j===i?'#ffd32f':'#191a16');document.querySelectorAll('#characterSelect button').forEach((x,j)=>x.style.color=j===i?'#111':'#fff')};selectBox.appendChild(b);});selectBox.children[0].click();
-[[-7,-22,Math.PI*.08],[7,-44,-Math.PI*.08],[-7,-70,Math.PI*.05]].forEach((p,i)=>{const n=makeNPC(npcStyles[i]);n.position.set(p[0],0,p[1]);n.rotation.y=p[2];n.userData.baseY=0;n.userData.phase=i*1.8;n.userData.kind=i;scene.add(n);npcs.push(n)});
-const player=new THREE.Group();player.position.set(0,0,3);scene.add(player);
 const characters=[
 {name:'ROCKY',shirt:0xf02f59,jeans:0x17243d,skin:0xb87350,hair:0x18120f,glasses:true,chain:true,speed:1.06,ability:'RAGE'},
 {name:'MONTU',shirt:0x16a56a,jeans:0x202020,skin:0x9d6348,hair:0x15110e,glasses:false,chain:true,speed:1.0,ability:'LUCK'},
@@ -84,6 +79,11 @@ const characters=[
 ];
 let selectedCharacter=0;
 const currentChar=()=>characters[selectedCharacter];
+const npcs=[];
+const selectBox=$('characterSelect');
+characters.forEach((ch,i)=>{const b=document.createElement('button');b.textContent=ch.name+' · '+ch.ability;b.style.cssText='border:1px solid #ffffff33;background:#191a16;color:#fff;padding:8px 12px;border-radius:9px;font:900 10px Arial;letter-spacing:1px;cursor:pointer';b.onclick=()=>{selectedCharacter=i;document.querySelectorAll('#characterSelect button').forEach((x,j)=>x.style.background=j===i?'#ffd32f':'#191a16');document.querySelectorAll('#characterSelect button').forEach((x,j)=>x.style.color=j===i?'#111':'#fff')};selectBox.appendChild(b);});selectBox.children[0].click();
+[[-7,-22,Math.PI*.08],[7,-44,-Math.PI*.08],[-7,-70,Math.PI*.05]].forEach((p,i)=>{const n=makeNPC(npcStyles[i]);n.position.set(p[0],0,p[1]);n.rotation.y=p[2];n.userData.baseY=0;n.userData.phase=i*1.8;n.userData.kind=i;scene.add(n);npcs.push(n)});
+const player=new THREE.Group();player.position.set(0,0,3);scene.add(player);
 const torso=addMesh(player,new THREE.BoxGeometry(.9,1.15,.55),mat(currentChar().shirt,.72),[0,1.5,0]);torso.rotation.x=.05;
 const collar=addMesh(player,new THREE.TorusGeometry(.22,.035,8,24),white,[0,1.82,.29]);collar.rotation.x=Math.PI/2;
 addMesh(player,new THREE.SphereGeometry(.38,20,16),mat(characters[selectedCharacter].skin,.9),[0,2.38,0]);
