@@ -161,18 +161,38 @@ $('music').addEventListener('click',()=>musicOn?stopMusic():startMusic());
 function applyCharacter(){buildPlayer();$('abilityName').textContent=currentChar().ability}
 function startGame(){
   try{
-    running=true;dead=false;gameStartedAt=performance.now();combo=0;comboT=0;nearMisses=0;wanted=0;missionProgress=0;
+    obstacles.forEach(cleanup);
+    obstacles.length=0;
+    if(police){scene.remove(police);police=null}
+    running=true;dead=false;gameStartedAt=performance.now();
+    combo=0;comboT=0;nearMisses=0;wanted=0;missionProgress=0;
+    lane=1;targetX=0;jumpT=slideT=elapsed=score=cash=chase=0;
+    speed=15;spawnT=.35;ability=null;abilityT=invuln=deathT=0;
+    player.position.set(0,0,3);player.rotation.set(0,0,0);player.scale.set(1,1,1);
+    camera.position.set(0,4.8,10.5);
     applyCharacter();
     try{startMusic()}catch(e){console.warn('Music unavailable:',e)}
+    $('menu').classList.add('hide');
+    $('gameover').classList.add('hide');
+    $('ability').classList.remove('show');
+    $('chase').classList.remove('show');
+    $('wanted').style.opacity='0';
+    $('combo').style.opacity='0';
+    $('chaseBar').style.width='0%';
+    $('chaseText').textContent='0%';
+    $('deathFX').style.animation='none';
+    $('score').textContent='00000';
+    $('coins').textContent='0';
+    $('speed').textContent='1.0x';
+    $('missionBox').textContent='MISSION: SURVIVE 20s · +25 STING';
   }catch(e){
     console.error('START GAME ERROR',e);
     running=false;dead=false;
+    $('menu').classList.remove('hide');
     const p=document.querySelector('#menu .card p');
-    if(p)p.innerHTML='<b style="color:#ff5b5b">START ERROR</b><br>Refresh once and try again.';
-    return;
+    if(p)p.innerHTML='<b style="color:#ff5b5b">START ERROR</b><br>Open the browser console and refresh once.';
   }
-  obstacles.forEach(cleanup);obstacles.length=0;if(police){scene.remove(police);police=null}lane=1;targetX=0;jumpT=slideT=elapsed=score=cash=chase=0;speed=15;spawnT=.35;ability=null;abilityT=invuln=deathT=0;player.position.set(0,0,3);player.rotation.set(0,0,0);player.scale.set(1,1,1);camera.position.set(0,4.8,10.5);$('menu').classList.add('hide');$('gameover').classList.add('hide');$('ability').classList.remove('show');$('chase').classList.remove('show');$('chaseBar').style.width='0%';$('deathFX').style.animation='none';$('score').textContent='00000';$('coins').textContent='0';$('speed').textContent='1.0x'
-}obstacles.forEach(cleanup);obstacles.length=0;if(police){scene.remove(police);police=null}lane=1;targetX=0;jumpT=slideT=elapsed=score=cash=chase=0;speed=15;spawnT=.35;ability=null;abilityT=invuln=deathT=0;player.position.set(0,0,3);player.rotation.set(0,0,0);player.scale.set(1,1,1);camera.position.set(0,4.8,10.5);$('menu').classList.add('hide');$('gameover').classList.add('hide');$('ability').classList.remove('show');$('chase').classList.remove('show');$('chaseBar').style.width='0%';$('deathFX').style.animation='none';$('score').textContent='00000';$('coins').textContent='0';$('speed').textContent='1.0x'}
+}
 function die(reason){if(dead)return;dead=true;running=false;deathT=0;$('deathFX').style.animation='hit .65s';$('overTitle').textContent=reason;const finalScore=Math.floor(score);const isBest=finalScore>best;if(isBest){best=finalScore;localStorage.setItem('chapriRunBest',String(best));$('best').textContent=String(best).padStart(5,'0')}$('overText').textContent='Score '+finalScore+' · STING '+cash+' · Best '+best+'. The street had other plans.';setTimeout(()=>$('gameover').classList.remove('hide'),850)}
 function update(dt){
  if(!running&&!dead)return;
