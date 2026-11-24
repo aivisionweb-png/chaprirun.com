@@ -97,8 +97,8 @@ for(const side of [-1,1])for(let i=0;i<10;i++){const z=-i*18-9,x=side*7.2;const 
 const map2=new THREE.Group();map2.visible=false;scene.add(map2);
 const m2Road=mat(0x151a20,.96),m2Side=mat(0x25212a,1),m2Yellow=mat(0xffd21f,.35),m2Neon=mat(0x10d9d2,.25,.35),m2Pink=mat(0xff3d81,.28,.3);
 function m2cube(w,h,d,m,x,y,z){const o=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),m);o.position.set(x,y,z);o.castShadow=true;o.receiveShadow=true;map2.add(o);return o}
-m2cube(15,.25,190,m2Road,0,-.15,-58);m2cube(18,.5,190,m2Side,-16,-.05,-58);m2cube(18,.5,190,m2Side,16,-.05,-58);
-for(const x of [-1.35,1.35])for(let i=0;i<38;i++)m2cube(.1,.025,2.6,m2Yellow,x,.02,-i*5-3);
+m2cube(15,.25,190,m2Road,0,-.15,-58).userData.stingKeep=true;m2cube(18,.5,190,m2Side,-16,-.05,-58).userData.stingKeep=true;m2cube(18,.5,190,m2Side,16,-.05,-58).userData.stingKeep=true;
+for(const x of [-1.35,1.35])for(let i=0;i<38;i++){const o=m2cube(.1,.025,2.6,m2Yellow,x,.02,-i*5-3);o.userData.stingKeep=true;}
 function m2building(x,z,h,w,color){
  m2cube(w,h,8,mat(color,.9),x,h/2,z);
  for(let yy=1.8;yy<h-1;yy+=2.1)for(let xx=-w/2+1;xx<w/2-.5;xx+=1.8)m2cube(.62,.7,.06,mat(0x24d9d0,.25,.2),x+xx,yy,z-4.04);
@@ -113,9 +113,9 @@ function m2sign(x,z,label,color){
  ctx.fillStyle='#090b10';ctx.fillRect(0,0,640,160);ctx.strokeStyle=color;ctx.lineWidth=5;ctx.strokeRect(7,7,626,146);
  ctx.fillStyle=color;ctx.font='900 54px Arial';ctx.textAlign='center';ctx.fillText(label,320,103);
  const sp=new THREE.Sprite(new THREE.SpriteMaterial({map:new THREE.CanvasTexture(cv),transparent:true}));
- sp.position.set(x,4.4,z);sp.scale.set(6.2,1.55,1);map2.add(sp);
+ sp.position.set(x,4.4,z);sp.scale.set(6.2,1.55,1);map2.add(sp);return sp;
 }
-m2sign(-7,-18,'NIGHT CHAI','#10d9d2');m2sign(7,-34,'STING ZONE','#ffcf24');m2sign(-7,-57,'OLD CITY','#ff3d81');m2sign(7,-82,'NO SIGNAL','#b7a4ff');
+const stingSign=m2sign(0,-28,'STING','#ffcf24');stingSign.userData.stingKeep=true;
 for(const side of [-1,1])for(let i=0;i<12;i++){
  const z=-i*15-5,x=side*8.2;
  const pole=m2cube(.12,6.6,.12,mat(0x15181d,.6,.5),x,3.25,z);
@@ -132,7 +132,11 @@ function setMap(id){
  scene.traverse(o=>{if(o.userData&&o.userData.mapId===1)o.visible=id===0});
  map2.visible=id===1;
  if(id===0){scene.background.set(0x9a6142);scene.fog.color.set(0x9a6142);scene.fog.near=28;scene.fog.far=125}
- else {scene.background.set(0x070a12);scene.fog.color.set(0x070a12);scene.fog.near=24;scene.fog.far=115}
+ else {
+  scene.background.set(0x05070b);scene.fog.color.set(0x05070b);scene.fog.near=35;scene.fog.far=140;
+  // Clean Sting-only night map: keep the road, lane markings and Sting sign; hide city clutter.
+  map2.children.forEach(o=>{o.visible=!!o.userData.stingKeep});
+ }
 }
 
 function initMapSelect(){
@@ -210,7 +214,7 @@ const keys={};let running=false,dead=false,lane=1,targetX=0,jumpT=0,slideT=0,ela
 let combo=0,comboT=0,nearMisses=0,wanted=0,missionProgress=0,missionTarget=20,gameStartedAt=0;
 const obstacles=[];$('best').textContent=String(best).padStart(5,'0');
 function cleanup(o){scene.remove(o.mesh);if(o.mesh.traverse)o.mesh.traverse(n=>{if(n.geometry)n.geometry.dispose()})}
-function spawn(){const coin=Math.random()<.25;const type=coin?'vimal':Math.random()<.16?'power':obstacleTypes[Math.floor(Math.random()*obstacleTypes.length)];const mesh=type==='vimal'?makeVimal():type==='power'?makePower():makeByType[type]();mesh.position.set(laneX[Math.floor(Math.random()*3)],type==='vimal'?1.15:type==='power'?1.2:0,-100);scene.add(mesh);obstacles.push({mesh,type,x:mesh.position.x,z:-100,power:type==='power'?['shield','magnet','turbo'][Math.floor(Math.random()*3)]:null,removed:false})}
+function spawn(){const coin=selectedMap===1?true:Math.random()<.25;const type=coin?'vimal':Math.random()<.16?'power':obstacleTypes[Math.floor(Math.random()*obstacleTypes.length)];const mesh=type==='vimal'?makeVimal():type==='power'?makePower():makeByType[type]();mesh.position.set(laneX[Math.floor(Math.random()*3)],type==='vimal'?1.15:type==='power'?1.2:0,-100);scene.add(mesh);obstacles.push({mesh,type,x:mesh.position.x,z:-100,power:type==='power'?['shield','magnet','turbo'][Math.floor(Math.random()*3)]:null,removed:false})}
 function move(d){if(!running||dead)return;lane=Math.max(0,Math.min(2,lane+d));targetX=laneX[lane]}
 function doJump(){if(!running||dead||jumpT>0||slideT>0)return;jumpT=.001;sfx('jump');shake=Math.max(shake,.08)}
 function doSlide(){if(!running||dead||jumpT>0)return;slideT=.001;sfx('slide');shake=Math.max(shake,.04)}
