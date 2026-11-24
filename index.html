@@ -65,8 +65,9 @@ setTimeout(function(){
   }
 },4000);
 </script>
-<script type="module">
-import * as THREE from 'https://unpkg.com/three@0.161.0/build/three.module.js';
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r161/three.min.js"></script>
+<script>
+/* Classic Three.js boot: avoids ES-module startup failures on static hosts. */
 
 const $=id=>document.getElementById(id);
 const scene=new THREE.Scene();scene.background=new THREE.Color(0x9a6142);scene.fog=new THREE.Fog(0x9a6142,28,125);
