@@ -74,23 +74,25 @@ const npcStyles=[
 ];
 const npcs=[];
 const selectBox=$('characterSelect');
-characters.forEach((ch,i)=>{const b=document.createElement('button');b.textContent=ch.name;b.style.cssText='border:1px solid #ffffff33;background:#191a16;color:#fff;padding:8px 12px;border-radius:9px;font:900 10px Arial;letter-spacing:1px;cursor:pointer';b.onclick=()=>{selectedCharacter=i;document.querySelectorAll('#characterSelect button').forEach((x,j)=>x.style.background=j===i?'#ffd32f':'#191a16');document.querySelectorAll('#characterSelect button').forEach((x,j)=>x.style.color=j===i?'#111':'#fff')};selectBox.appendChild(b);});selectBox.children[0].click();
+characters.forEach((ch,i)=>{const b=document.createElement('button');b.textContent=ch.name+' · '+ch.ability;b.style.cssText='border:1px solid #ffffff33;background:#191a16;color:#fff;padding:8px 12px;border-radius:9px;font:900 10px Arial;letter-spacing:1px;cursor:pointer';b.onclick=()=>{selectedCharacter=i;document.querySelectorAll('#characterSelect button').forEach((x,j)=>x.style.background=j===i?'#ffd32f':'#191a16');document.querySelectorAll('#characterSelect button').forEach((x,j)=>x.style.color=j===i?'#111':'#fff')};selectBox.appendChild(b);});selectBox.children[0].click();
 [[-7,-22,Math.PI*.08],[7,-44,-Math.PI*.08],[-7,-70,Math.PI*.05]].forEach((p,i)=>{const n=makeNPC(npcStyles[i]);n.position.set(p[0],0,p[1]);n.rotation.y=p[2];n.userData.baseY=0;n.userData.phase=i*1.8;n.userData.kind=i;scene.add(n);npcs.push(n)});
 const player=new THREE.Group();player.position.set(0,0,3);scene.add(player);
 const characters=[
-{name:'ROCKY',shirt:0xf02f59,jeans:0x17243d,skin:0xb87350,hair:0x18120f},
-{name:'MONTU',shirt:0x16a56a,jeans:0x202020,skin:0x9d6348,hair:0x15110e},
-{name:'KALU',shirt:0x111111,jeans:0x303030,skin:0x8e563d,hair:0x100d0b}
+{name:'ROCKY',shirt:0xf02f59,jeans:0x17243d,skin:0xb87350,hair:0x18120f,glasses:true,chain:true,speed:1.06,ability:'RAGE'},
+{name:'MONTU',shirt:0x16a56a,jeans:0x202020,skin:0x9d6348,hair:0x15110e,glasses:false,chain:true,speed:1.0,ability:'LUCK'},
+{name:'KALU',shirt:0x111111,jeans:0x303030,skin:0x8e563d,hair:0x100d0b,glasses:true,chain:false,speed:.95,ability:'TANK'}
 ];
 let selectedCharacter=0;
-const torso=addMesh(player,new THREE.BoxGeometry(.9,1.15,.55),mat(characters[selectedCharacter].shirt,.72),[0,1.5,0]);torso.rotation.x=.05;
+const currentChar=()=>characters[selectedCharacter];
+const torso=addMesh(player,new THREE.BoxGeometry(.9,1.15,.55),mat(currentChar().shirt,.72),[0,1.5,0]);torso.rotation.x=.05;
 const collar=addMesh(player,new THREE.TorusGeometry(.22,.035,8,24),white,[0,1.82,.29]);collar.rotation.x=Math.PI/2;
 addMesh(player,new THREE.SphereGeometry(.38,20,16),mat(characters[selectedCharacter].skin,.9),[0,2.38,0]);
 addMesh(player,new THREE.SphereGeometry(.41,20,12,0,Math.PI*2,0,Math.PI*.55),mat(characters[selectedCharacter].hair,.9),[0,2.56,0]);
 const tuft=addMesh(player,new THREE.ConeGeometry(.18,.42,7),hair,[.08,2.86,0]);tuft.rotation.z=-.28;
 const animated=[];
 for(const sx of [-1,1]){addMesh(player,new THREE.BoxGeometry(.23,.12,.045),lenses,[sx*.15,2.4,.34]);const arm=capsule(player,.13,.62,shirt,[sx*.54,1.53,0]);arm.rotation.z=sx*.32;arm.userData.arm=sx;animated.push(arm);const fore=capsule(player,.105,.42,skin,[sx*.69,1.1,0]);fore.userData.fore=sx;animated.push(fore);const leg=capsule(player,.15,.72,mat(characters[selectedCharacter].jeans,.8),[sx*.23,.67,0]);leg.userData.leg=sx;animated.push(leg);const shoe=addMesh(player,new THREE.BoxGeometry(.32,.17,.62),shoes,[sx*.23,.2,-.1]);shoe.userData.shoe=sx}
-const chain=addMesh(player,new THREE.TorusGeometry(.27,.026,8,28),gold,[0,1.67,.32]);chain.rotation.x=Math.PI/2;
+const chain=addMesh(player,new THREE.TorusGeometry(.27,.026,8,28),gold,[0,1.67,.32]);chain.rotation.x=Math.PI/2;chain.visible=currentChar().chain;
+const charGlassL=addMesh(player,new THREE.BoxGeometry(.23,.12,.045),lenses,[-.15,2.4,.34]);const charGlassR=addMesh(player,new THREE.BoxGeometry(.23,.12,.045),lenses,[.15,2.4,.34]);charGlassL.visible=charGlassR.visible=currentChar().glasses;
 const scarf=new THREE.Group();scarf.position.set(0,1.78,-.05);player.add(scarf);
 const scarfA=addMesh(scarf,new THREE.BoxGeometry(.12,.14,1.45),green,[.48,.02,-.48]);scarfA.rotation.x=-.13;
 const scarfB=addMesh(scarf,new THREE.BoxGeometry(.12,.14,1.45),green,[-.48,.02,-.48]);scarfB.rotation.x=-.13;
@@ -119,12 +121,13 @@ function ytCommand(func){const f=document.getElementById('songPlayer');f.content
 function startMusic(){if(musicOn)return;musicOn=true;ytCommand('playVideo');$('music').textContent='♫ CHAPRI SONG ON'}
 function stopMusic(){musicOn=false;ytCommand('pauseVideo');$('music').textContent='♫ MUSIC OFF'}
 $('music').addEventListener('click',()=>musicOn?stopMusic():startMusic());
-function startGame(){startMusic();obstacles.forEach(cleanup);obstacles.length=0;if(police){scene.remove(police);police=null}running=true;dead=false;lane=1;targetX=0;jumpT=slideT=elapsed=score=cash=chase=0;speed=15;spawnT=.35;ability=null;abilityT=invuln=deathT=0;player.position.set(0,0,3);player.rotation.set(0,0,0);player.scale.set(1,1,1);camera.position.set(0,4.8,10.5);$('menu').classList.add('hide');$('gameover').classList.add('hide');$('ability').classList.remove('show');$('chase').classList.remove('show');$('chaseBar').style.width='0%';$('deathFX').style.animation='none';$('score').textContent='00000';$('coins').textContent='0';$('speed').textContent='1.0x'}
+function applyCharacter(){const ch=currentChar();player.traverse(o=>{if(o.isMesh&&o.material&&o.material.color){const n=o.material.color.getHex();if(n===shirt.getHex())o.material.color.setHex(ch.shirt);if(n===jeans.getHex())o.material.color.setHex(ch.jeans);if(n===skin.getHex())o.material.color.setHex(ch.skin);if(n===hair.getHex())o.material.color.setHex(ch.hair)}});chain.visible=ch.chain;charGlassL.visible=charGlassR.visible=ch.glasses;$('abilityName').textContent=ch.ability}
+function startGame(){applyCharacter();startMusic();obstacles.forEach(cleanup);obstacles.length=0;if(police){scene.remove(police);police=null}running=true;dead=false;lane=1;targetX=0;jumpT=slideT=elapsed=score=cash=chase=0;speed=15;spawnT=.35;ability=null;abilityT=invuln=deathT=0;player.position.set(0,0,3);player.rotation.set(0,0,0);player.scale.set(1,1,1);camera.position.set(0,4.8,10.5);$('menu').classList.add('hide');$('gameover').classList.add('hide');$('ability').classList.remove('show');$('chase').classList.remove('show');$('chaseBar').style.width='0%';$('deathFX').style.animation='none';$('score').textContent='00000';$('coins').textContent='0';$('speed').textContent='1.0x'}
 function die(reason){if(dead)return;dead=true;running=false;deathT=0;$('deathFX').style.animation='hit .65s';$('overTitle').textContent=reason;const finalScore=Math.floor(score);const isBest=finalScore>best;if(isBest){best=finalScore;localStorage.setItem('chapriRunBest',String(best));$('best').textContent=String(best).padStart(5,'0')}$('overText').textContent='Score '+finalScore+' · STING '+cash+' · Best '+best+'. The street had other plans.';setTimeout(()=>$('gameover').classList.remove('hide'),850)}
 function update(dt){
  if(!running&&!dead)return;
  if(dead){deathT+=dt;player.rotation.z=THREE.MathUtils.damp(player.rotation.z,-1.42,7,dt);player.rotation.x=THREE.MathUtils.damp(player.rotation.x,.5,5,dt);player.position.y=THREE.MathUtils.damp(player.position.y,-.12,5,dt);camera.position.x+=Math.sin(deathT*35)*.06;camera.lookAt(player.position.x,1,-5);return}
- elapsed+=dt;speed=Math.min(37,15+elapsed*.43);score+=dt*(18+elapsed*.22);spawnT-=dt;if(spawnT<=0){spawn();spawnT=Math.max(.34,.78-elapsed*.004)+Math.random()*.18}
+ elapsed+=dt;speed=Math.min(37,15+elapsed*.43)*currentChar().speed;score+=dt*(18+elapsed*.22);spawnT-=dt;if(spawnT<=0){spawn();spawnT=Math.max(.34,.78-elapsed*.004)+Math.random()*.18}
  if(keys.left){move(-1);keys.left=false}if(keys.right){move(1);keys.right=false}if(keys.jump){doJump();keys.jump=false}if(keys.slide){doSlide();keys.slide=false}
  if(jumpT>0){jumpT+=dt*2.8;if(jumpT>=Math.PI){jumpT=0;player.position.y=0}else player.position.y=Math.sin(jumpT)*1.55}else player.position.y=THREE.MathUtils.damp(player.position.y,0,12,dt);
  if(slideT>0){slideT+=dt*3;if(slideT>=Math.PI){slideT=0;player.scale.y=1}else player.scale.y=.58}else player.scale.y=THREE.MathUtils.damp(player.scale.y,1,12,dt);
