@@ -40,9 +40,25 @@
 <div id="ability"><span id="abilityName">SHIELD</span><b id="abilityTime">READY</b></div>
 <div id="chase"><div class="ct"><span>POLICE CHASE</span><b id="chaseText">0%</b></div><div class="bar"><i id="chaseBar"></i></div></div>
 <button id="music" style="position:fixed;z-index:9;right:16px;bottom:16px;border:1px solid #ffffff25;background:#111c;color:#ffd32f;border-radius:999px;padding:9px 12px;font:900 10px Arial;letter-spacing:1px">♫ MUSIC</button><div id="deathFX"></div>
-<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.161/build/three.module.js"}}</script>
+<script>
+window.__chapriBooted=false;
+window.addEventListener('error',function(e){
+  console.error('CHAPRI RUN boot error:',e.error||e.message);
+  const l=document.getElementById('loading');
+  if(l){l.classList.add('hide');}
+  const m=document.getElementById('menu');
+  if(m){m.classList.remove('hide');}
+});
+setTimeout(function(){
+  if(!window.__chapriBooted){
+    const l=document.getElementById('loading'); if(l) l.classList.add('hide');
+    const p=document.querySelector('#menu .card p');
+    if(p) p.innerHTML='<b style="color:#ffd32f">GAME ENGINE STARTING…</b><br>If the screen does not respond, refresh once.';
+  }
+},4000);
+</script>
 <script type="module">
-import * as THREE from 'three';
+import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.161/build/three.module.js';
 
 const $=id=>document.getElementById(id);
 const scene=new THREE.Scene();scene.background=new THREE.Color(0x9a6142);scene.fog=new THREE.Fog(0x9a6142,28,125);
@@ -176,6 +192,7 @@ addEventListener('keydown',e=>{const k=e.key.toLowerCase();if(['arrowleft','arro
 let touchStart=null;addEventListener('touchstart',e=>{if(e.target.closest('button')||!running)return;const t=e.changedTouches[0];touchStart={x:t.clientX,y:t.clientY}},{passive:true});addEventListener('touchend',e=>{if(!touchStart)return;const t=e.changedTouches[0],dx=t.clientX-touchStart.x,dy=t.clientY-touchStart.y;if(Math.max(Math.abs(dx),Math.abs(dy))>28){if(Math.abs(dx)>Math.abs(dy))move(dx>0?1:-1);else if(dy<0)doJump();else doSlide()}touchStart=null},{passive:true});
 addEventListener('pointerdown',e=>{if(!running||e.target.closest('button')||e.pointerType==='touch')return;const rect=renderer.domElement.getBoundingClientRect();if(e.clientX<rect.left+rect.width*.34)move(-1);else if(e.clientX>rect.left+rect.width*.66)move(1)});
 addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight)});
+window.__chapriBooted=true;
 $('loading').classList.add('hide');
 
 setTimeout(()=>npcs.forEach((n,i)=>{n.traverse(o=>{if(o.isMesh)o.frustumCulled=false});}),100);
