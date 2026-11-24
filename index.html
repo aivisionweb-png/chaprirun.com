@@ -115,7 +115,7 @@ function m2sign(x,z,label,color){
  const sp=new THREE.Sprite(new THREE.SpriteMaterial({map:new THREE.CanvasTexture(cv),transparent:true}));
  sp.position.set(x,4.4,z);sp.scale.set(6.2,1.55,1);map2.add(sp);return sp;
 }
-const stingSign=m2sign(0,-28,'STING','#ffcf24');stingSign.userData.stingKeep=true;
+m2sign(-7,-18,'NIGHT CHAI','#10d9d2');m2sign(7,-34,'STING ZONE','#ffcf24');m2sign(-7,-57,'OLD CITY','#ff3d81');m2sign(7,-82,'NO SIGNAL','#b7a4ff');
 for(const side of [-1,1])for(let i=0;i<12;i++){
  const z=-i*15-5,x=side*8.2;
  const pole=m2cube(.12,6.6,.12,mat(0x15181d,.6,.5),x,3.25,z);
@@ -132,11 +132,7 @@ function setMap(id){
  scene.traverse(o=>{if(o.userData&&o.userData.mapId===1)o.visible=id===0});
  map2.visible=id===1;
  if(id===0){scene.background.set(0x9a6142);scene.fog.color.set(0x9a6142);scene.fog.near=28;scene.fog.far=125}
- else {
-  scene.background.set(0x05070b);scene.fog.color.set(0x05070b);scene.fog.near=35;scene.fog.far=140;
-  // Clean Sting-only night map: keep the road, lane markings and Sting sign; hide city clutter.
-  map2.children.forEach(o=>{o.visible=!!o.userData.stingKeep});
- }
+ else {scene.background.set(0x070a12);scene.fog.color.set(0x070a12);scene.fog.near=24;scene.fog.far=115;map2.children.forEach(o=>o.visible=true)}
 }
 
 function initMapSelect(){
@@ -214,7 +210,7 @@ const keys={};let running=false,dead=false,lane=1,targetX=0,jumpT=0,slideT=0,ela
 let combo=0,comboT=0,nearMisses=0,wanted=0,missionProgress=0,missionTarget=20,gameStartedAt=0;
 const obstacles=[];$('best').textContent=String(best).padStart(5,'0');
 function cleanup(o){scene.remove(o.mesh);if(o.mesh.traverse)o.mesh.traverse(n=>{if(n.geometry)n.geometry.dispose()})}
-function spawn(){const coin=selectedMap===1?true:Math.random()<.25;const type=coin?'vimal':Math.random()<.16?'power':obstacleTypes[Math.floor(Math.random()*obstacleTypes.length)];const mesh=type==='vimal'?makeVimal():type==='power'?makePower():makeByType[type]();mesh.position.set(laneX[Math.floor(Math.random()*3)],type==='vimal'?1.15:type==='power'?1.2:0,-100);scene.add(mesh);obstacles.push({mesh,type,x:mesh.position.x,z:-100,power:type==='power'?['shield','magnet','turbo'][Math.floor(Math.random()*3)]:null,removed:false})}
+function spawn(){const coin=Math.random()<.25;const type=coin?'vimal':Math.random()<.16?'power':obstacleTypes[Math.floor(Math.random()*obstacleTypes.length)];const mesh=type==='vimal'?makeVimal():type==='power'?makePower():makeByType[type]();mesh.position.set(laneX[Math.floor(Math.random()*3)],type==='vimal'?1.15:type==='power'?1.2:0,-100);scene.add(mesh);obstacles.push({mesh,type,x:mesh.position.x,z:-100,power:type==='power'?['shield','magnet','turbo'][Math.floor(Math.random()*3)]:null,removed:false})}
 function move(d){if(!running||dead)return;lane=Math.max(0,Math.min(2,lane+d));targetX=laneX[lane]}
 function doJump(){if(!running||dead||jumpT>0||slideT>0)return;jumpT=.001;sfx('jump');shake=Math.max(shake,.08)}
 function doSlide(){if(!running||dead||jumpT>0)return;slideT=.001;sfx('slide');shake=Math.max(shake,.04)}
