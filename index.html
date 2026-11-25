@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <meta name="theme-color" content="#080806">
-<title>CHAPRI RUN — STING STREET CHAOS</title>
+<title>CHAPPAL WALA DON — MOHALLA CHAOS</title>
 <style>
 *{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#080806;color:#fff;font-family:Inter,Arial,sans-serif}
 #game{position:fixed;inset:0}canvas{display:block}
@@ -32,14 +32,14 @@
 <body>
 <div class="loading" id="loading"><div><b>CHAPRI RUN</b><small>LOADING THE STREET...</small></div></div>
 <div id="game"></div><iframe id="songPlayer" style="position:fixed;width:1px;height:1px;left:-10px;bottom:-10px;border:0;opacity:.01;pointer-events:none" allow="autoplay; encrypted-media" src="https://www.youtube.com/embed/yJBsSlB91Bc?enablejsapi=1&autoplay=0&loop=1&playlist=yJBsSlB91Bc&controls=0&playsinline=1"></iframe><iframe id="stingSound" style="position:fixed;width:1px;height:1px;left:-10px;bottom:-10px;border:0;opacity:.01;pointer-events:none" allow="autoplay; encrypted-media" src="https://www.youtube.com/embed/fXhjJpDi2YI?enablejsapi=1&autoplay=0&controls=0&playsinline=1"></iframe>
-<div class="hud"><div class="logo">CHAPRI <span>RUN</span></div><div class="stats">
+<div class="hud"><div class="logo">CHAPPAL <span>DON</span></div><div class="stats">
 <div class="stat"><label>SCORE</label><b id="score">00000</b></div><div class="stat"><label>STING</label><b class="cash" id="coins">0</b></div><div class="stat"><label>BEST</label><b id="best">00000</b></div><div class="stat"><label>SPEED</label><b class="cash" id="speed">1.0x</b></div></div></div>
-<div class="screen" id="menu"><div class="card"><div class="eyebrow">3D INDIAN STREET CHAOS</div><div class="title">CHAPRI <span>RUN</span></div><p>Autos. Dogs. Scooters. Roadblocks. Grab <b style="color:#ffd32f">STING</b> cans, dodge traffic and outrun the police.</p><div id="characterSelect" style="display:flex;gap:7px;justify-content:center;margin:0 0 14px;flex-wrap:wrap"></div><div style="margin:0 0 10px;text-align:center;color:#777;font:900 8px Arial;letter-spacing:2px">SELECT MAP</div><div id="mapSelect" style="display:flex;gap:7px;justify-content:center;margin:0 0 14px;flex-wrap:wrap"></div><button class="start" id="start" type="button">START THE RUN →</button>
+<div class="screen" id="menu"><div class="card"><div class="eyebrow">3D INDIAN MOHALLA CHAOS</div><div class="title">CHAPPAL <span>DON</span></div><p>Throw the legendary <b style="color:#ffd32f">CHAPPAL</b>, create chaos, dodge traffic and escape the police.</p><div id="characterSelect" style="display:flex;gap:7px;justify-content:center;margin:0 0 14px;flex-wrap:wrap"></div><div style="margin:0 0 10px;text-align:center;color:#777;font:900 8px Arial;letter-spacing:2px">SELECT MAP</div><div id="mapSelect" style="display:flex;gap:7px;justify-content:center;margin:0 0 14px;flex-wrap:wrap"></div><button class="start" id="start" type="button">ENTER THE MOHALLA →</button>
 <div id="missionBox" style="margin-top:13px;padding:10px;border:1px solid #ffffff18;border-radius:10px;background:#0b0c09;color:#aaa;font:900 9px Arial;letter-spacing:1px">MISSION: SURVIVE 20s</div>
 <div id="shopBox" style="display:flex;gap:6px;justify-content:center;margin-top:8px;flex-wrap:wrap"></div><div class="hint">PC: A/D or ←/→ · W/↑/Space jump · S/↓ slide<br>Mobile: swipe or use the action controls</div></div></div>
-<div class="screen hide" id="gameover"><div class="card"><div class="eyebrow">TRAFFIC POLICE REPORT</div><div class="title" id="overTitle">COOKED.</div><p id="overText"></p><button class="start" id="again">RUN IT BACK ↗</button><div class="hint">Best score is saved on this device.</div></div></div>
+<div class="screen hide" id="gameover"><div class="card"><div class="eyebrow">MOHALLA POLICE REPORT</div><div class="title" id="overTitle">COOKED.</div><p id="overText"></p><button class="start" id="again">RUN IT BACK ↗</button><div class="hint">Best score is saved on this device.</div></div></div>
 <div class="touch"><button id="left" aria-label="Left">←</button><button id="jump" aria-label="Jump">↑</button><button id="slide" aria-label="Slide">↓</button><button id="right" aria-label="Right">→</button></div>
-<div class="tag">NO BRAKES · NO SHAME · STING ENERGY · STREET CREW</div>
+<div class="tag">NO BRAKES · NO SHAME · CHAPPAL READY · MOHALLA CREW</div>
 <div id="ability"><span id="abilityName">SHIELD</span><b id="abilityTime">READY</b></div>
 <div id="combo" style="position:fixed;z-index:8;left:50%;top:120px;transform:translateX(-50%);opacity:0;transition:.2s;font:900 15px Impact,Arial;color:#ffd32f;text-shadow:2px 2px #000;letter-spacing:2px"></div>
 <div id="wanted" style="position:fixed;z-index:7;right:16px;top:105px;opacity:0;transition:.2s;padding:7px 10px;border:1px solid #e33;border-radius:9px;background:#180808dd;color:#ff5b5b;font:900 9px Arial;letter-spacing:2px">WANTED ★</div>
@@ -336,5 +336,133 @@ function initChapriShop(){
 initChapriShop();
 initMapSelect();
 </script>
+
+<style id="chappalDonStyle">
+#chappalBtn{position:fixed;z-index:12;right:18px;bottom:88px;width:86px;height:86px;border-radius:50%;border:2px solid #ffd32f;background:radial-gradient(circle at 35% 30%,#fff5a8,#ffd32f 42%,#9b5a0b 100%);color:#111;font:900 11px Arial;letter-spacing:1px;box-shadow:0 8px 30px #0008,0 0 25px #ffd32f55;touch-action:none}
+#chappalBtn:active{transform:scale(.94)}
+#chaosHud{position:fixed;z-index:8;left:50%;top:156px;transform:translateX(-50%);width:min(330px,68vw);opacity:.95}
+#chaosHud .ct{display:flex;justify-content:space-between;color:#fff;font:900 8px Arial;letter-spacing:2px;margin-bottom:4px}
+#chaosHud .bar{height:7px;border-radius:10px;background:#ffffff22;overflow:hidden;border:1px solid #ffffff18}
+#chaosHud .bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,#ffd32f,#ff7a00,#f33);box-shadow:0 0 14px #ffd32f;transition:width .1s}
+#chappalToast{position:fixed;z-index:15;left:50%;top:24%;transform:translate(-50%,-50%) scale(.7);opacity:0;color:#ffd32f;text-shadow:3px 3px #000;font:900 clamp(22px,6vw,46px) Impact,Arial;letter-spacing:2px;pointer-events:none;white-space:nowrap}
+#chappalToast.show{animation:donPop .65s ease-out}
+@keyframes donPop{0%{opacity:0;transform:translate(-50%,-50%) scale(.5) rotate(-4deg)}18%{opacity:1;transform:translate(-50%,-50%) scale(1.08) rotate(2deg)}75%{opacity:1;transform:translate(-50%,-50%) scale(1)}100%{opacity:0;transform:translate(-50%,-50%) scale(1.12) translateY(-18px)}}
+@media(min-width:760px){#chappalBtn{right:28px;bottom:28px}}
+</style>
+<button id="chappalBtn" type="button">🩴<br>CHAPPAL</button>
+<div id="chaosHud"><div class="ct"><span>MOHALLA CHAOS</span><b id="chaosText">0%</b></div><div class="bar"><i id="chaosBar"></i></div></div>
+<div id="chappalToast">CHAPPAL READY!</div>
+
+<script id="chappalDonEngine">
+(function(){
+  let chappal=null, chappalState=null, chaos=0, throwCooldown=0, toastTimer=0, combo=0;
+  const btn=document.getElementById('chappalBtn'), toast=document.getElementById('chappalToast');
+  const chaosBar=document.getElementById('chaosBar'), chaosText=document.getElementById('chaosText');
+
+  function shoeMaterial(){return new THREE.MeshStandardMaterial({color:0x6b351c,roughness:.7,metalness:.05});}
+  function buildChappal(){
+    const g=new THREE.Group();
+    const sole=new THREE.Mesh(new THREE.BoxGeometry(.38,.09,.95),shoeMaterial());
+    sole.position.y=0; sole.castShadow=true; g.add(sole);
+    const strapMat=new THREE.MeshStandardMaterial({color:0x17110d,roughness:.5});
+    const strap=new THREE.TorusGeometry(.19,.045,8,18);
+    const s=new THREE.Mesh(strap,strapMat); s.scale.set(1,.7,1.35); s.rotation.x=Math.PI/2; s.position.set(0,.07,.05); g.add(s);
+    g.userData.isChappal=true;
+    return g;
+  }
+  function say(text){
+    toast.textContent=text; toast.classList.remove('show'); void toast.offsetWidth; toast.classList.add('show');
+    clearTimeout(toastTimer); toastTimer=setTimeout(()=>toast.classList.remove('show'),700);
+  }
+  function addChaos(v){
+    chaos=Math.min(100,chaos+v);
+    chaosBar.style.width=chaos+'%'; chaosText.textContent=Math.floor(chaos)+'%';
+    if(chaos>=100){
+      say('MOHALLA MADNESS!');
+      chaos=55;
+      if(typeof wanted!=='undefined') wanted=Math.min(5,wanted+1.2);
+    }
+  }
+  function throwChappal(){
+    if(typeof running==='undefined'||!running||typeof dead!=='undefined'&&dead||throwCooldown>0)return;
+    throwCooldown=.42;
+    if(!chappal){chappal=buildChappal();scene.add(chappal);}
+    const targetLane=(typeof lane!=='undefined'?lane:1);
+    const tx=laneX[targetLane];
+    chappal.position.set(player.position.x,player.position.y+1.35,player.position.z-.45);
+    chappal.rotation.set(0,0,0);
+    chappalState={x:chappal.position.x,y:chappal.position.y,z:chappal.position.z,tx:tx,phase:'out',age:0};
+    say('CHAPPAL OUT!');
+    if(typeof sfx==='function')sfx('sting');
+  }
+  function hitObject(o){
+    if(!o||!o.mesh)return;
+    const x=o.mesh.position.x,z=o.mesh.position.z;
+    const dx=Math.abs(x-chappal.position.x), dz=Math.abs(z-chappal.position.z);
+    if(dx<1.15&&dz<1.35){
+      if(['auto','dog','scooter','pothole','ball','barrier'].includes(o.type)){
+        if(typeof score!=='undefined')score+=120;
+        if(typeof cash!=='undefined')cash+=1;
+        if(typeof combo!=='undefined')combo++;
+        addChaos(8);
+        say(combo>=3?'CHAPPAL COMBO x'+combo:'YE LE CHAPPAL!');
+        if(typeof shake!=='undefined')shake=Math.max(shake,.18);
+        if(typeof sfx==='function')sfx('hit');
+        if(typeof cleanup==='function')cleanup(o);
+        const idx=obstacles.indexOf(o); if(idx>=0)obstacles.splice(idx,1);
+        chappalState.phase='return';
+        return true;
+      }
+    }
+    return false;
+  }
+  function updateChappal(dt){
+    if(throwCooldown>0)throwCooldown=Math.max(0,throwCooldown-dt);
+    if(!chappalState||!chappal)return;
+    chappalState.age+=dt;
+    if(chappalState.phase==='out'){
+      const p=Math.min(1,chappalState.age/.24);
+      chappal.position.x=THREE.MathUtils.lerp(chappalState.x,chappalState.tx,p);
+      chappal.position.z=THREE.MathUtils.lerp(chappalState.z,-32,p);
+      chappal.position.y=chappalState.y+Math.sin(p*Math.PI)*1.4;
+      chappal.rotation.z+=dt*22;
+      chappal.rotation.y+=dt*9;
+      for(const o of obstacles.slice())if(hitObject(o))break;
+      if(p>=1){chappalState.phase='return';chappalState.age=0;}
+    }else{
+      const p=Math.min(1,chappalState.age/.34);
+      chappal.position.x=THREE.MathUtils.lerp(chappal.position.x,player.position.x,p);
+      chappal.position.z=THREE.MathUtils.lerp(chappal.position.z,player.position.z-.35,p);
+      chappal.position.y=THREE.MathUtils.lerp(chappal.position.y,player.position.y+1.25,p);
+      chappal.rotation.z+=dt*28;
+      if(p>=1){chappalState=null;chappal.visible=false;}
+    }
+    chappal.visible=true;
+  }
+  btn.addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();throwChappal();});
+  window.addEventListener('keydown',e=>{
+    if(e.key.toLowerCase()==='e'||e.key.toLowerCase()==='f')throwChappal();
+  });
+  let last=performance.now();
+  function tick(now){
+    const dt=Math.min(.04,(now-last)/1000);last=now;
+    updateChappal(dt);
+    requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+
+  // Keep the new title/state visible without touching the original game loop.
+  const oldStart=window.startGame;
+  if(typeof oldStart==='function'){
+    window.startGame=function(){
+      chaos=0; combo=0; throwCooldown=0; chappalState=null;
+      chaosBar.style.width='0%'; chaosText.textContent='0%';
+      if(chappal)chappal.visible=false;
+      return oldStart.apply(this,arguments);
+    };
+  }
+})();
+</script>
+
 </body>
 </html>
