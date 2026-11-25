@@ -17,7 +17,7 @@ const scoreEl=document.getElementById('score'),speedEl=document.getElementById('
 function resize(){D=Math.min(2,devicePixelRatio||1);W=innerWidth;H=innerHeight;c.width=W*D;c.height=H*D;x.setTransform(D,0,0,D,0,0)}addEventListener('resize',resize);resize();
 function rx(l,z){return W/2+(l-1)*W*.17*(.18+.82*(1-z))}
 function ry(z){return H*.39+(1-z)*H*.57}
-function road(){let g=x.createLinearGradient(0,0,0,H);g.addColorStop(0,'#111923');g.addColorStop(.45,'#273442');g.addColorStop(1,'#090d12');x.fillStyle=g;x.fillRect(0,0,W,H);
+function drawRoad(){let g=x.createLinearGradient(0,0,0,H);g.addColorStop(0,'#111923');g.addColorStop(.45,'#273442');g.addColorStop(1,'#090d12');x.fillStyle=g;x.fillRect(0,0,W,H);
 for(let i=0;i<14;i++){let bx=(i*83)%W,bh=70+(i*37)%130;x.fillStyle=i%2?'#101820':'#18232d';x.fillRect(bx,H*.39-bh,45+(i%4)*12,bh);for(let q=0;q<4;q++){x.fillStyle=(i+q)%3?'#f3c85b22':'#69d9ff44';x.fillRect(bx+7+q*12,H*.39-bh+15+q*13,5,4)}}
 x.fillStyle='#0d1116';x.beginPath();x.moveTo(W*.32,H);x.lineTo(W*.46,H*.39);x.lineTo(W*.54,H*.39);x.lineTo(W*.68,H);x.closePath();x.fill();
 x.strokeStyle='#ffffff19';x.lineWidth=2;for(let l of [.42,.5,.58]){x.beginPath();x.moveTo(W/2+(l-.5)*W,H*.39);x.lineTo(W/2+(l-.5)*W*2,H);x.stroke()}
@@ -35,7 +35,7 @@ hitCheck(coins);hitCheck(traffic);hitCheck(police);
 traffic=traffic.filter(a=>a.z>0);police=police.filter(a=>a.z>0);coins=coins.filter(a=>a.z>0);
 if(boost>0){boost-=dt;nitro=Math.max(0,nitro-dt*.18)}for(const p of particles){p.x+=p.vx*dt;p.y+=p.vy*dt;p.vy+=240*dt;p.life-=dt}particles=particles.filter(p=>p.life>0);if(shake>0)shake-=dt;
 scoreEl.textContent=score;speedEl.textContent=Math.round(105+v*42);nb.style.transform='scaleX('+nitro+')'}
-function render(){x.save();if(shake)x.translate((Math.random()-.5)*12,(Math.random()-.5)*9);road();[...traffic,...police,...coins].sort((a,b)=>b.z-a.z).forEach(entity);drawPlayer();for(const p of particles){x.globalAlpha=Math.max(0,p.life*2);x.fillStyle=p.col;x.fillRect(p.x,p.y,4,4)}x.globalAlpha=1;x.restore()}
+function render(){x.save();if(shake)x.translate((Math.random()-.5)*12,(Math.random()-.5)*9);drawRoad();[...traffic,...police,...coins].sort((a,b)=>b.z-a.z).forEach(entity);drawPlayer();for(const p of particles){x.globalAlpha=Math.max(0,p.life*2);x.fillStyle=p.col;x.fillRect(p.x,p.y,4,4)}x.globalAlpha=1;x.restore()}
 function loop(now){if(!playing)return;let dt=Math.min(.035,(now-last)/1000||0);last=now;update(dt);render();requestAnimationFrame(loop)}
 function move(n){target=Math.max(0,Math.min(2,target+n))}
 function nitroGo(){if(nitro>.12){boost=Math.min(3,boost+1.2);nitro-=.12;burst(W/2,H*.87,'#69d9ff')}}
