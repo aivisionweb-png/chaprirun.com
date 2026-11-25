@@ -1,103 +1,12 @@
-<!doctype html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>SALLU DRIVE</title>
-<style>
-*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#08120d;font-family:Arial,Helvetica,sans-serif;touch-action:none}
-canvas{display:block;width:100%;height:100%}
-#hud{position:fixed;inset:0;pointer-events:none;color:white}
-.top{position:absolute;top:18px;left:18px;right:18px;display:flex;justify-content:space-between;align-items:flex-start}
-.logo{font-weight:900;letter-spacing:3px;font-size:22px;text-shadow:0 3px 12px #000}.sub{font-size:10px;opacity:.7;letter-spacing:2px;margin-top:4px}
-.stat{background:rgba(5,12,8,.55);border:1px solid rgba(255,255,255,.16);backdrop-filter:blur(8px);padding:9px 13px;border-radius:14px;text-align:right}.stat b{font-size:18px}.stat span{font-size:9px;opacity:.65;display:block;letter-spacing:1px}
-#msg{position:absolute;top:22%;width:100%;text-align:center;font-size:28px;font-weight:900;text-shadow:0 4px 18px #000;opacity:0;transform:scale(.8);transition:.2s}
-#msg.show{opacity:1;transform:scale(1)}
-#start{position:absolute;inset:0;display:grid;place-items:center;background:linear-gradient(#06100bcc,#07140ddd)}
-.card{width:min(88%,430px);padding:30px;border-radius:26px;background:rgba(10,18,13,.88);border:1px solid #ffffff22;box-shadow:0 20px 80px #0009;text-align:center}
-.card h1{font-size:44px;margin:0 0 4px;letter-spacing:5px}.card p{color:#b9c6bd;font-size:13px;line-height:1.6}.play{margin-top:15px;width:100%;padding:16px;border:0;border-radius:15px;background:#f1f0e8;color:#10150f;font-weight:900;font-size:16px;letter-spacing:2px}
-#hint{position:absolute;bottom:20px;width:100%;text-align:center;font-size:11px;opacity:.55;letter-spacing:1px}
-#song{position:fixed;width:1px;height:1px;left:-10px;top:-10px;border:0;opacity:.01}
-</style>
-</head>
-<body>
-<canvas id="game"></canvas>
-<div id="hud">
- <div class="top"><div><div class="logo">SALLU DRIVE</div><div class="sub">FOREST RUN • NO BRAKES</div></div><div class="stat"><b id="score">0</b><span>SCORE</span></div></div>
- <div id="msg"></div><div id="hint">SWIPE ← → TO CHANGE LANES</div>
-</div>
-<div id="start"><div class="card"><h1>SALLU<br>DRIVE</h1><p>Automatic drive. Three lanes. Deep forest. Black deer everywhere.<br>Swipe to dodge — or hit them and watch the chaos.</p><button class="play" id="play">START DRIVE</button></div></div>
-<iframe id="song" allow="autoplay; encrypted-media" src="https://www.youtube.com/embed/1_NARmSWeyQ?enablejsapi=1&controls=0&playsinline=1&rel=0"></iframe>
-<script>
-const c=document.getElementById('game'),x=c.getContext('2d'),scoreEl=document.getElementById('score'),msg=document.getElementById('msg'),start=document.getElementById('start'),song=document.getElementById('song');
-let W,H,dpr,run=false,last=0,score=0,speed=0.42,lane=1,targetLane=1,spawn=0,trees=[],deer=[],particles=[],shake=0,combo=0;
-const lanes=[-.62,0,.62];
-function resize(){dpr=Math.min(2,devicePixelRatio||1);W=innerWidth;H=innerHeight;c.width=W*dpr;c.height=H*dpr;x.setTransform(dpr,0,0,dpr,0,0)}addEventListener('resize',resize);resize();
-function rand(a,b){return a+Math.random()*(b-a)}
-function laneX(l,z){let roadW=W*.76*(.22+.78*z);return W/2+lanes[l]*roadW*.48}
-function say(t){msg.textContent=t;msg.classList.add('show');clearTimeout(say.t);say.t=setTimeout(()=>msg.classList.remove('show'),650)}
-function playSong(){try{song.contentWindow.postMessage(JSON.stringify({event:'command',func:'seekTo',args:[0,true]}),'*');song.contentWindow.postMessage(JSON.stringify({event:'command',func:'playVideo',args:[]}),'*')}catch(e){}}
-function tree(){trees.push({side:Math.random()<.5?-1:1,z:1.05,s:rand(.7,1.4)})}
-function spawnDeer(){deer.push({lane:Math.floor(rand(0,3)),z:1.05,s:rand(.82,1.08),hit:false,vy:0,rot:0})}
-for(let i=0;i<35;i++)tree();
-function drawBackground(){
- let g=x.createLinearGradient(0,0,0,H);g.addColorStop(0,'#08170f');g.addColorStop(.55,'#193d27');g.addColorStop(1,'#07110b');x.fillStyle=g;x.fillRect(0,0,W,H);
- for(let i=0;i<18;i++){let px=(i*137)%W,py=H*.1+(i*83)%(H*.4);x.fillStyle='rgba(180,220,177,.06)';x.beginPath();x.arc(px,py,rand(15,55),0,7);x.fill()}
-}
-function drawRoad(){
- let horizon=H*.29; x.fillStyle='#14241a';x.beginPath();x.moveTo(W*.12,H);x.lineTo(W*.39,horizon);x.lineTo(W*.61,horizon);x.lineTo(W*.88,H);x.closePath();x.fill();
- x.fillStyle='#51483a';x.beginPath();x.moveTo(W*.23,H);x.lineTo(W*.42,horizon);x.lineTo(W*.58,horizon);x.lineTo(W*.77,H);x.closePath();x.fill();
- x.strokeStyle='#c8b99b';x.lineWidth=3;x.beginPath();x.moveTo(W*.23,H);x.lineTo(W*.42,horizon);x.moveTo(W*.77,H);x.lineTo(W*.58,horizon);x.stroke();
- for(let i=0;i<12;i++){let z=(i/12+(performance.now()/10000*speed))%1;let y=horizon+(1-z)* (H-horizon);let rw=W*(.16+.84*(1-z));for(let l=1;l<3;l++){let cx=W/2+((l-1)*rw*.24);x.fillStyle='rgba(230,220,190,.7)';x.fillRect(cx-3,y,6,Math.max(3,22*(1-z)))}}
-}
-function drawTrees(){
- trees.forEach(t=>{t.z-=speed*.004;if(t.z<.02)t.z=1.05;let y=H*.29+(1-t.z)*(H*.71),sz=80*t.s*(1-t.z+.18),px=W/2+t.side*(W*.42*(1-t.z+.12));x.fillStyle='#241c14';x.fillRect(px-6,y-sz*.45,12,sz*.55);x.fillStyle='#0c2b18';x.beginPath();x.arc(px,y-sz*.7,sz*.45,0,7);x.arc(px-sz*.25,y-sz*.55,sz*.35,0,7);x.arc(px+sz*.25,y-sz*.55,sz*.35,0,7);x.fill()})
-}
-function drawCar(){
- let cx=W/2+(targetLane-lane)*W*.18,cy=H*.82;lane+=(targetLane-lane)*.18;
- x.save();x.translate(cx,cy);x.rotate((targetLane-lane)*.08);
- x.shadowColor='#000b';x.shadowBlur=25;x.shadowOffsetY=18;
- let g=x.createLinearGradient(-75,-75,75,85);g.addColorStop(0,'#fff');g.addColorStop(.45,'#dcded9');g.addColorStop(1,'#8f9692');x.fillStyle=g;
- x.beginPath();x.roundRect(-78,-88,156,170,24);x.fill();
- x.fillStyle='#17251f';x.beginPath();x.roundRect(-60,-50,120,62,16);x.fill();
- x.fillStyle='#263c35';x.beginPath();x.roundRect(-53,-44,106,47,12);x.fill();
- x.fillStyle='#c7c9c5';x.fillRect(-55,25,110,11);
- x.fillStyle='#aeb4b0';x.beginPath();x.roundRect(-60,38,120,31,10);x.fill();
- x.fillStyle='#fff4c7';x.fillRect(-58,8,25,18);x.fillRect(33,8,25,18);
- x.fillStyle='#202522';x.fillRect(-72,68,144,14);
- x.fillStyle='#111';x.fillRect(-86,-30,12,42);x.fillRect(74,-30,12,42);
- x.restore();
-}
-function drawDeer(d){
- let z=d.z,y=H*.29+(1-z)*(H*.71),scale=.25+(1-z)*1.35,px=laneX(d.lane,z);
- x.save();x.translate(px,y);x.scale(scale*d.s,scale*d.s);x.rotate(d.rot);
- x.fillStyle='#070908';x.beginPath();x.ellipse(0,0,34,16,0,0,7);x.fill();
- x.fillStyle='#090b09';x.beginPath();x.ellipse(27,-12,13,12,-.35,0,7);x.fill();
- x.strokeStyle='#090b09';x.lineWidth=6;for(let q=-20;q<=20;q+=20){x.beginPath();x.moveTo(q,8);x.lineTo(q-5,34);x.stroke()}
- x.lineWidth=3;x.beginPath();x.moveTo(33,-19);x.lineTo(40,-34);x.moveTo(39,-19);x.lineTo(47,-31);x.stroke();
- x.restore();
-}
-function hit(d){d.hit=true;d.vy=-8;d.rot=rand(-.35,.35);combo++;score+=100*combo;scoreEl.textContent=score;shake=12;playSong();say(combo>2?'RADHE RADHE! 🔥':'OYEEEE!');for(let i=0;i<18;i++)particles.push({x:W/2,y:H*.78,vx:rand(-7,7),vy:rand(-8,2),life:1})}
-function update(dt){
- score+=Math.floor(dt*12);scoreEl.textContent=score;spawn-=dt;if(spawn<0){spawn=rand(.45,.85);spawnDeer();if(Math.random()<.55)tree()}
- trees.forEach(t=>{t.z-=speed*dt;if(t.z<.03)t.z=1.05});
- deer.forEach(d=>{if(d.hit){d.z-=speed*dt;d.vy+=18*dt;d.z+=.004;d.rot+=d.rot*.02;if(d.z<.05)d.hit=false}else d.z-=speed*dt});
- deer=deer.filter(d=>d.z>-.08);
- for(const d of deer){if(!d.hit&&d.z<.16&&d.z>.06&&d.lane===targetLane)hit(d)}
- particles.forEach(p=>{p.x+=p.vx;p.y+=p.vy;p.vy+=.35;p.life-=dt});particles=particles.filter(p=>p.life>0);shake*=.88;
-}
-function render(){
- drawBackground();drawTrees();drawRoad();deer.sort((a,b)=>b.z-a.z);deer.forEach(drawDeer);drawCar();
- particles.forEach(p=>{x.globalAlpha=Math.max(0,p.life);x.fillStyle='#eee';x.fillRect(p.x,p.y,3,3)});x.globalAlpha=1;
- if(shake>1){/* visual shake handled by tiny overlay */x.fillStyle='rgba(255,255,255,.03)';x.fillRect(0,0,W,H)}
-}
-function loop(t){if(!run)return;let dt=Math.min(.033,(t-last)/1000||0);last=t;update(dt);render();requestAnimationFrame(loop)}
-function move(dir){targetLane=Math.max(0,Math.min(2,targetLane+dir))}
-let sx=0;
-addEventListener('touchstart',e=>{sx=e.touches[0].clientX},{passive:true});
-addEventListener('touchend',e=>{let dx=e.changedTouches[0].clientX-sx;if(Math.abs(dx)>35)move(dx>0?1:-1)},{passive:true});
-addEventListener('keydown',e=>{if(e.key==='ArrowLeft'||e.key==='a')move(-1);if(e.key==='ArrowRight'||e.key==='d')move(1)});
-document.getElementById('play').onclick=()=>{start.style.display='none';run=true;playSong();last=performance.now();requestAnimationFrame(loop)}
-</script>
-</body>
-</html>
+<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no"><title>PARLIAMENT RUSH</title><style>*{box-sizing:border-box}html,body{margin:0;height:100%;overflow:hidden;background:#101318;font-family:Arial;color:#fff;touch-action:none}canvas{width:100%;height:100%;display:block}#hud{position:fixed;inset:0;pointer-events:none}.top{display:flex;justify-content:space-between;padding:18px}.brand{font-weight:900;letter-spacing:3px}.pill{background:#111b;border:1px solid #fff3;border-radius:14px;padding:9px 13px;text-align:right}.pill small{display:block;opacity:.6}#center{position:absolute;inset:0;display:grid;place-items:center;background:#07101ed9}.card{width:min(90%,430px);background:#111923;border:1px solid #fff2;border-radius:25px;padding:30px;text-align:center;box-shadow:0 25px 80px #000b}.card h1{font-size:42px;margin:0 0 8px;letter-spacing:4px}.card p{color:#b9c1ca;line-height:1.6;font-size:13px}.btn{width:100%;border:0;border-radius:14px;padding:16px;font-weight:900;font-size:15px}.choice{display:flex;gap:10px;margin:18px 0}.choice button{flex:1;background:#202b37;color:#fff}.choice button.active{outline:2px solid #fff;background:#334150}.primary{background:#f4f1e8;color:#111}.tip{position:absolute;bottom:18px;width:100%;text-align:center;font-size:11px;opacity:.55}</style></head><body><canvas id="c"></canvas><div id="hud"><div class="top"><div class="brand">PARLIAMENT RUSH<div style="font-size:9px;opacity:.5;margin-top:4px">PARODY ARCADE • FICTIONAL GAME</div></div><div class="pill"><b id="score">0</b><small>SCORE</small></div></div><div class="tip">SWIPE ← → / ARROWS TO MOVE • COLLECT DOCUMENTS • DODGE THE CHAOS</div></div><div id="center"><div class="card"><h1>PARLIAMENT<br>RUSH</h1><p>Pick either character. Both have the same gameplay. Run through a stylized Parliament street, collect files and dodge flying microphones.</p><div class="choice"><button id="m" class="btn active">MODI</button><button id="r" class="btn">RAHUL</button></div><button id="go" class="btn primary">START GAME</button></div></div><script>
+const c=document.getElementById('c'),x=c.getContext('2d'),scoreEl=document.getElementById('score'),center=document.getElementById('center');let W,H,d=1,run=false,last=0,score=0,lane=1,target=1,items=[],obs=[],t=0,char='modi';function resize(){d=Math.min(2,devicePixelRatio||1);W=innerWidth;H=innerHeight;c.width=W*d;c.height=H*d;x.setTransform(d,0,0,d,0,0)}addEventListener('resize',resize);resize();
+function laneX(l,z){return W/2+(l-1)*W*.18*(.25+.75*(1-z))}
+function spawn(){if(Math.random()<.75)items.push({l:Math.floor(Math.random()*3),z:1});else obs.push({l:Math.floor(Math.random()*3),z:1})}
+function bg(){let g=x.createLinearGradient(0,0,0,H);g.addColorStop(0,'#101a27');g.addColorStop(.45,'#394957');g.addColorStop(1,'#121820');x.fillStyle=g;x.fillRect(0,0,W,H);x.fillStyle='#27313b';x.fillRect(0,H*.42,W,H*.58);x.fillStyle='#171d24';x.beginPath();x.moveTo(W*.16,H);x.lineTo(W*.43,H*.4);x.lineTo(W*.57,H*.4);x.lineTo(W*.84,H);x.fill();for(let i=0;i<7;i++){x.fillStyle='#d6b45c';x.fillRect(W*.05+i*W*.15,H*.39,55,8)}}
+function parliament(){x.fillStyle='#ddd6c8';x.fillRect(W*.36,H*.18,W*.28,H*.23);x.fillStyle='#b4ab9c';for(let i=0;i<9;i++){x.fillRect(W*.375+i*W*.028,H*.19,12,H*.18)}x.fillStyle='#c6bdad';x.beginPath();x.arc(W/2,H*.18,W*.11,Math.PI,0);x.fill();x.fillStyle='#e0d8c8';x.fillRect(W*.28,H*.39,W*.44,9)}
+function hero(){let px=W/2+(target-lane)*W*.18,py=H*.82;lane+=(target-lane)*.18;x.save();x.translate(px,py);x.fillStyle='#20252a';x.beginPath();x.roundRect(-27,-76,54,76,16);x.fill();x.fillStyle='#d8c8ad';x.beginPath();x.arc(0,-91,19,0,7);x.fill();x.fillStyle=char==='modi'?'#d77a19':'#253c74';x.fillRect(-21,-111,42,12);if(char==='modi'){x.strokeStyle='#fff';x.lineWidth=3;x.beginPath();x.moveTo(-16,-90);x.lineTo(16,-90);x.stroke()}else{x.fillStyle='#111';x.beginPath();x.arc(0,-94,19,0,Math.PI);x.fill()}x.restore()}
+function drawItems(){items.forEach(a=>{let z=a.z,px=laneX(a.l,z),py=H*.4+(1-z)*H*.6,s=8+(1-z)*30;x.fillStyle='#e8d8a8';x.fillRect(px-s,py-s*.7,s*2,s*1.4);x.fillStyle='#7b5b2b';x.fillRect(px-s*.7,py-s*.25,s*1.4,2)})}
+function drawObs(){obs.forEach(a=>{let z=a.z,px=laneX(a.l,z),py=H*.4+(1-z)*H*.6,s=8+(1-z)*32;x.save();x.translate(px,py);x.rotate(t*3);x.fillStyle='#b83a35';x.fillRect(-s*.9,-s*.18,s*1.8,s*.36);x.fillStyle='#e6e6e6';x.fillRect(-s*.2,-s*.7,s*.4,s*1.4);x.restore()})}
+function update(dt){t+=dt;score+=Math.floor(dt*8);scoreEl.textContent=score;if(Math.random()<dt*1.1)spawn();items.forEach(a=>a.z-=dt*.38);obs.forEach(a=>a.z-=dt*.38);for(const a of items)if(a.z<.16&&a.z>.04&&a.l===target){score+=100;a.z=-1}for(const a of obs)if(a.z<.16&&a.z>.04&&a.l===target){score=Math.max(0,score-80);a.z=-1}items=items.filter(a=>a.z>0);obs=obs.filter(a=>a.z>0)}
+function render(){bg();parliament();drawItems();drawObs();hero()}function loop(q){if(!run)return;let dt=Math.min(.04,(q-last)/1000||0);last=q;update(dt);render();requestAnimationFrame(loop)}function move(n){target=Math.max(0,Math.min(2,target+n))}let sx=0;addEventListener('touchstart',e=>sx=e.touches[0].clientX,{passive:true});addEventListener('touchend',e=>{let dx=e.changedTouches[0].clientX-sx;if(Math.abs(dx)>30)move(dx>0?1:-1)},{passive:true});addEventListener('keydown',e=>{if(e.key==='ArrowLeft'||e.key==='a')move(-1);if(e.key==='ArrowRight'||e.key==='d')move(1)});document.getElementById('m').onclick=()=>{char='modi';m.classList.add('active');r.classList.remove('active')};document.getElementById('r').onclick=()=>{char='rahul';r.classList.add('active');m.classList.remove('active')};document.getElementById('go').onclick=()=>{center.style.display='none';run=true;last=performance.now();requestAnimationFrame(loop)};render();
+</script></body></html>
