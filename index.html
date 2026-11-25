@@ -1,99 +1,66 @@
 <!doctype html>
 <html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
-<title>GULLY RUN</title>
+<title>ROOFTOP RUN</title>
 <style>
-*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#08090c;font-family:Arial,sans-serif;touch-action:none}
-canvas{display:block;width:100%;height:100%}
-#hud{position:fixed;inset:0;pointer-events:none;color:#fff}.top{display:flex;justify-content:space-between;padding:14px}.logo{font-weight:1000;letter-spacing:4px;font-size:17px;text-shadow:0 3px 10px #000}.logo small{display:block;font-size:7px;letter-spacing:2px;color:#ffcf3d;margin-top:4px}.stats{display:flex;gap:6px}.stat{min-width:58px;text-align:center;padding:7px 8px;border:1px solid #fff2;border-radius:12px;background:#080b10b8;backdrop-filter:blur(8px)}.stat b{display:block;font-size:16px}.stat span{font-size:7px;color:#aeb4bd;letter-spacing:1px}
-#meter{position:absolute;left:14px;bottom:18px;width:180px;height:12px;border:1px solid #fff3;border-radius:99px;background:#fff1;overflow:hidden}#meter i{display:block;height:100%;width:0;background:linear-gradient(90deg,#ff8a00,#ffe05b)}#meter span{position:absolute;top:-15px;font-size:8px;letter-spacing:2px;color:#ffd34b}
-.overlay{position:fixed;inset:0;display:grid;place-items:center;background:linear-gradient(#05070bd8,#05070bf0);z-index:5}.card{width:min(92%,430px);padding:28px;border:1px solid #ffffff18;border-radius:28px;background:#0d1118eF;box-shadow:0 30px 100px #000;backdrop-filter:blur(18px)}.eyebrow{font-size:8px;letter-spacing:4px;color:#ffcf3d;font-weight:900}.title{font-size:54px;line-height:.82;letter-spacing:-4px;font-weight:1000;margin:12px 0}.title em{font-style:normal;color:#ffcf3d}.desc{color:#9fa8b5;font-size:12px;line-height:1.6}.features{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin:18px 0}.f{border:1px solid #fff1;background:#ffffff06;border-radius:12px;padding:10px;font-size:9px;color:#9fa8b5}.f b{display:block;color:#fff;font-size:11px;margin-bottom:3px}button{width:100%;border:0;border-radius:15px;padding:16px;background:#ffcf3d;color:#111;font-weight:1000;font-size:12px;letter-spacing:.5px}.hint{text-align:center;color:#626b78;font-size:7px;letter-spacing:1px;margin-top:10px}.over{text-align:center}.over h2{font-size:34px;margin:9px 0}.over p{color:#9fa8b5}
-</style></head><body>
-<canvas id="game"></canvas>
-<div id="hud"><div class="top"><div class="logo">GULLY RUN<small>DON'T STOP. DON'T LOOK BACK.</small></div><div class="stats"><div class="stat"><b id="score">0</b><span>SCORE</span></div><div class="stat"><b id="coins">0</b><span>COINS</span></div><div class="stat"><b id="best">0</b><span>BEST</span></div></div></div><div id="meter"><span>RAGE</span><i id="bar"></i></div></div>
-<div id="menu" class="overlay"><div class="card"><div class="eyebrow">ROOFTOPS • TRAFFIC • CHAOS</div><div class="title">GULLY<br><em>RUN</em></div><div class="desc">A proper endless runner. Sprint through a packed Indian gully, jump over scooters and barricades, collect coins and survive the flying chappal storm.</div><div class="features"><div class="f"><b>RUN + JUMP</b>Fast lane switching</div><div class="f"><b>COINS</b>Build your score</div><div class="f"><b>POWER MODE</b>Fill the rage bar</div><div class="f"><b>CHAOS</b>Random obstacles</div></div><button id="start">START RUN</button><div class="hint">SWIPE LEFT / RIGHT • SWIPE UP TO JUMP</div></div></div>
-<div id="over" class="overlay" style="display:none"><div class="card over"><div class="eyebrow">RUN OVER</div><h2 id="reason">BONKED</h2><p id="result"></p><button id="again">RUN IT BACK</button></div></div>
+*{box-sizing:border-box}html,body{margin:0;height:100%;overflow:hidden;background:#07090d;font-family:Arial,sans-serif;touch-action:none}canvas{display:block;width:100%;height:100%}
+#hud{position:fixed;inset:0;color:#fff;pointer-events:none}.bar{display:flex;justify-content:space-between;padding:15px}.logo{font-weight:1000;letter-spacing:3px;font-size:17px}.logo i{color:#ffcc32;font-style:normal}.sub{font-size:7px;color:#87909d;letter-spacing:2px;margin-top:3px}.stats{display:flex;gap:5px}.stat{background:#080b10cc;border:1px solid #fff2;border-radius:12px;padding:7px 9px;text-align:center;min-width:55px}.stat b{font-size:15px}.stat small{display:block;color:#7f8895;font-size:7px}
+#menu,#over{position:fixed;inset:0;display:grid;place-items:center;background:#05070bd9;z-index:4}.card{width:min(92%,430px);background:#0d1118f5;border:1px solid #fff2;border-radius:28px;padding:28px;box-shadow:0 30px 100px #000}.ey{font-size:8px;letter-spacing:4px;color:#ffcc32;font-weight:900}.title{font-size:53px;line-height:.82;font-weight:1000;letter-spacing:-4px;margin:12px 0}.title em{color:#ffcc32;font-style:normal}.desc{color:#9aa4b2;font-size:12px;line-height:1.6}.features{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin:17px 0}.f{padding:11px;border:1px solid #fff1;border-radius:13px;background:#ffffff06;color:#8d97a5;font-size:9px}.f b{display:block;color:#fff;font-size:11px;margin-bottom:3px}button{width:100%;border:0;border-radius:15px;padding:16px;background:#ffcc32;color:#111;font-weight:1000}.hint{text-align:center;color:#68717d;font-size:7px;letter-spacing:1px;margin-top:10px}.over{text-align:center}.over h2{font-size:34px;margin:10px 0}.over p{color:#9aa4b2}
+#power{position:absolute;left:15px;bottom:18px;width:190px;height:10px;border:1px solid #fff2;border-radius:99px;overflow:hidden;background:#fff1}#power i{display:block;height:100%;width:0;background:#ffcc32}#power span{position:absolute;top:-14px;font-size:8px;color:#ffcc32;letter-spacing:2px}
+</style></head><body><canvas id="c"></canvas>
+<div id="hud"><div class="bar"><div class="logo">ROOFTOP <i>RUN</i><div class="sub">JUMP • GRIND • ESCAPE</div></div><div class="stats"><div class="stat"><b id="score">0</b><small>SCORE</small></div><div class="stat"><b id="coins">0</b><small>COINS</small></div><div class="stat"><b id="best">0</b><small>BEST</small></div></div></div><div id="power"><span>ADRENALINE</span><i id="pb"></i></div></div>
+<div id="menu"><div class="card"><div class="ey">ONE TAP. ONE ROOFTOP. NO BRAKES.</div><div class="title">ROOFTOP<br><em>RUN</em></div><div class="desc">Forget the boring straight-line runner. Leap rooftop gaps, grind rails, duck under clotheslines, dodge water tanks and steal coins from the skyline.</div><div class="features"><div class="f"><b>ROOFTOP GAPS</b>Jump or fall</div><div class="f"><b>GRIND RAILS</b>Hit the sweet line</div><div class="f"><b>POWER JUMP</b>Charge adrenaline</div><div class="f"><b>CHAOS EVENTS</b>Random surprises</div></div><button id="start">RUN THE ROOFTOPS</button><div class="hint">SWIPE LEFT / RIGHT TO CHANGE ROOFTOP • SWIPE UP TO JUMP</div></div></div>
+<div id="over" style="display:none"><div class="card over"><div class="ey">END OF THE LINE</div><h2 id="reason">YOU FELL</h2><p id="result"></p><button id="again">RUN AGAIN</button></div></div>
 <script>
-const canvas=document.getElementById('game'),ctx=canvas.getContext('2d');
-let W=0,H=0,dpr=1,run=false,last=0,time=0,distance=0,score=0,coins=0,best=+localStorage.gullyRunBest||0,lane=1,targetLane=1,jumpY=0,jumpV=0,combo=1,rage=0,power=0,shake=0;
-let obstacles=[],collect=[],shoes=[],particles=[],spawn=0,coinSpawn=0,shoeSpawn=0;
-const $=id=>document.getElementById(id);$('best').textContent=best;
-function resize(){dpr=Math.min(2,devicePixelRatio||1);W=innerWidth;H=innerHeight;canvas.width=W*dpr;canvas.height=H*dpr;ctx.setTransform(dpr,0,0,dpr,0,0)}addEventListener('resize',resize);resize();
-const horizon=()=>H*.38;
-function roadX(lane,z){const h=horizon(),p=Math.max(0,Math.min(1,z));const near=W*.5+(lane-1)*W*.28;const far=W*.5+(lane-1)*W*.075;return far+(near-far)*Math.pow(p,.72)}
-function roadY(z){return horizon()+Math.pow(Math.max(0,Math.min(1,z)),1.7)*(H*.64)}
-function scale(z){return .25+Math.pow(Math.max(0,Math.min(1,z)),1.35)*.95}
-function background(){
- const g=ctx.createLinearGradient(0,0,0,H);g.addColorStop(0,'#07111d');g.addColorStop(.36,'#172b3d');g.addColorStop(.6,'#c66f43');g.addColorStop(1,'#15151a');ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
- ctx.fillStyle='#f7c76b';ctx.globalAlpha=.8;ctx.beginPath();ctx.arc(W*.78,H*.19,30,0,Math.PI*2);ctx.fill();ctx.globalAlpha=1;
- for(let i=0;i<13;i++){let bw=55+(i%4)*20,bh=70+(i*31)%170,bx=i*92-(time*8%92);ctx.fillStyle=i%2?'#111b25':'#182431';ctx.fillRect(bx,horizon()+20-bh,bw,bh);for(let yy=horizon()+30-bh;yy<horizon()-10;yy+=20){ctx.fillStyle='#ffc85744';ctx.fillRect(bx+9,yy,6,5);ctx.fillRect(bx+bw-16,yy,6,5)}}
- ctx.fillStyle='#0b1015';ctx.beginPath();ctx.moveTo(W*.30,horizon());ctx.lineTo(W*.12,H);ctx.lineTo(W*.88,H);ctx.lineTo(W*.70,horizon());ctx.closePath();ctx.fill();
- ctx.strokeStyle='#fff4';ctx.lineWidth=3;ctx.setLineDash([22,26]);ctx.lineDashOffset=-time*130;for(const x of [.44,.56]){ctx.beginPath();ctx.moveTo(W*x,horizon());ctx.lineTo(W*x+(x-.5)*W*.55,H);ctx.stroke()}ctx.setLineDash([]);
- ctx.fillStyle='#252a31';ctx.fillRect(0,horizon()+6,W,9);
- for(let i=0;i<7;i++){let px=(i*170-time*45)%W;ctx.fillStyle='#27313a';ctx.fillRect(px,horizon()-20,5,70);ctx.strokeStyle='#37444e';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(px+2,horizon()-18);ctx.lineTo(px+35,horizon()-45);ctx.stroke()}
+const c=document.getElementById('c'),x=c.getContext('2d');let W,H,dpr,run=false,last=0,t=0,score=0,coins=0,best=+localStorage.rooftopBest||0,track=1,target=1,y=0,vy=0,energy=0,shake=0;
+let objs=[],spawn=0,coinT=0,events=[],parts=[];const $=i=>document.getElementById(i);$('best').textContent=best;
+function size(){dpr=Math.min(2,devicePixelRatio||1);W=innerWidth;H=innerHeight;c.width=W*dpr;c.height=H*dpr;x.setTransform(dpr,0,0,dpr,0,0)}addEventListener('resize',size);size();
+function ground(l,z=1){let yy=H*.72+z*0;return W*.5+(l-1)*W*.29}
+function bg(){let g=x.createLinearGradient(0,0,0,H);g.addColorStop(0,'#07111f');g.addColorStop(.48,'#18283b');g.addColorStop(1,'#0a0d12');x.fillStyle=g;x.fillRect(0,0,W,H);
+x.fillStyle='#ffd978';x.beginPath();x.arc(W*.78,H*.18,28,0,7);x.fill();
+for(let i=0;i<12;i++){let bx=i*100-(t*11%100),bh=90+(i*47)%180,bw=65+(i%3)*22;x.fillStyle=i%2?'#101923':'#162432';x.fillRect(bx,H*.57-bh,bw,bh);for(let yy=H*.57-bh+18;yy<H*.55;yy+=23){x.fillStyle='#ffd05a38';x.fillRect(bx+10,yy,7,5);x.fillRect(bx+bw-18,yy,7,5)}}
+x.fillStyle='#0b1016';x.fillRect(0,H*.72,W,H*.28);
+for(let l=0;l<3;l++){let px=ground(l),top=px-80+(l-1)*40;x.fillStyle=l===1?'#333942':'#282f38';x.beginPath();x.moveTo(top-95,H*.52);x.lineTo(top+95,H*.52);x.lineTo(px+W*.14,H);x.lineTo(px-W*.14,H);x.closePath();x.fill()}
+x.strokeStyle='#ffffff12';x.lineWidth=2;for(let i=0;i<18;i++){let px=(i*87-t*70)%W;let yy=H*.72+(i%4)*36;x.beginPath();x.moveTo(px,yy);x.lineTo(px+35,yy);x.stroke()}
 }
-function shadow(x,y,w){ctx.fillStyle='#0006';ctx.beginPath();ctx.ellipse(x,y,w,.22*w,0,0,Math.PI*2);ctx.fill()}
-function player(){
- const x=roadX(targetLane,1),y=roadY(1)-jumpY,s=1.05;
- shadow(x,roadY(1)+12,42);
- ctx.save();ctx.translate(x,y);ctx.scale(s,s);
- ctx.strokeStyle='#0a0d11';ctx.lineWidth=8;ctx.lineCap='round';
- let step=Math.sin(time*15)*10;ctx.beginPath();ctx.moveTo(-9,25);ctx.lineTo(-14+step*.25,47);ctx.moveTo(9,25);ctx.lineTo(14-step*.25,47);ctx.stroke();
- ctx.fillStyle='#f4f0df';ctx.beginPath();ctx.roundRect(-14,-18,28,47,9);ctx.fill();
- ctx.fillStyle='#20252b';ctx.beginPath();ctx.arc(0,-28,12,0,Math.PI*2);ctx.fill();
- ctx.fillStyle='#d8b18b';ctx.beginPath();ctx.arc(0,-29,8,0,Math.PI*2);ctx.fill();
- ctx.strokeStyle='#20252b';ctx.lineWidth=7;ctx.beginPath();ctx.moveTo(-11,-8);ctx.lineTo(-23,9+step*.2);ctx.moveTo(11,-8);ctx.lineTo(23,9-step*.2);ctx.stroke();
- ctx.restore();
-}
-function drawObstacle(o){
- const x=roadX(o.lane,o.z),y=roadY(o.z),s=scale(o.z);shadow(x,y+7,34*s);ctx.save();ctx.translate(x,y);ctx.scale(s,s);
- if(o.type==='scooter'){ctx.fillStyle='#d73542';ctx.fillRect(-24,-20,48,13);ctx.fillStyle='#111';ctx.beginPath();ctx.arc(-17,-4,9,0,7);ctx.arc(18,-4,9,0,7);ctx.fill();ctx.strokeStyle='#111';ctx.lineWidth=5;ctx.beginPath();ctx.moveTo(14,-18);ctx.lineTo(24,-39);ctx.lineTo(31,-39);ctx.stroke()}
- if(o.type==='barrier'){ctx.fillStyle='#ffb52d';ctx.fillRect(-30,-25,60,25);ctx.fillStyle='#222';for(let i=-24;i<30;i+=16){ctx.save();ctx.translate(i,-25);ctx.rotate(-.5);ctx.fillRect(0,0,7,25);ctx.restore()}}
- if(o.type==='person'){ctx.fillStyle='#16181c';ctx.beginPath();ctx.arc(0,-35,11,0,7);ctx.fill();ctx.fillStyle=o.c;ctx.roundRect(-15,-25,30,35,8);ctx.fill();ctx.strokeStyle='#16181c';ctx.lineWidth=7;ctx.beginPath();ctx.moveTo(-8,9);ctx.lineTo(-14,30);ctx.moveTo(8,9);ctx.lineTo(14,30);ctx.moveTo(-12,-14);ctx.lineTo(-25,2);ctx.moveTo(12,-14);ctx.lineTo(25,2);ctx.stroke()}
- if(o.type==='shoe'){ctx.fillStyle='#161616';ctx.beginPath();ctx.ellipse(0,0,31,11,0,0,7);ctx.fill();ctx.fillStyle='#e4c49b';ctx.fillRect(-30,-3,20,5)}
- ctx.restore();
-}
-function drawCollect(o){const x=roadX(o.lane,o.z),y=roadY(o.z)-22*scale(o.z),s=scale(o.z);ctx.save();ctx.translate(x,y);ctx.scale(s,s);if(o.type==='coin'){ctx.fillStyle='#ffd43b';ctx.shadowBlur=14;ctx.shadowColor='#ffd43b';ctx.beginPath();ctx.arc(0,0,13,0,7);ctx.fill();ctx.shadowBlur=0;ctx.fillStyle='#75520b';ctx.font='bold 13px Arial';ctx.textAlign='center';ctx.fillText('₹',0,5)}else{ctx.fillStyle='#ff884d';ctx.rotate(Math.sin(time*4)*.2);ctx.beginPath();ctx.moveTo(0,-18);ctx.lineTo(18,14);ctx.lineTo(-18,14);ctx.closePath();ctx.fill()}ctx.restore()}
-function spawnObstacle(){let r=Math.random();let type=r<.34?'scooter':r<.60?'barrier':r<.84?'person':'shoe';obstacles.push({lane:Math.floor(Math.random()*3),z:0,type,c:['#48a6d8','#d64f73','#c8a13b'][Math.floor(Math.random()*3)]})}
-function spawnCollect(){collect.push({lane:Math.floor(Math.random()*3),z:0,type:Math.random()<.82?'coin':'samosa'})}
-function spawnShoe(){let side=Math.random()<.5?-1:1;shoes.push({x:side<0?-50:W+50,y:H*(.24+Math.random()*.42),vx:side<0?260+Math.random()*180:-260-Math.random()*180,vy:(Math.random()-.5)*80,r:Math.random()*6.28,life:4})}
-function burst(x,y,c,n=18){for(let i=0;i<n;i++)particles.push({x,y,vx:(Math.random()-.5)*260,vy:(Math.random()-.8)*240,l:.35+Math.random()*.5,c})}
-function jump(){if(jumpY<=1){jumpV=780;jumpY=2}}
-function move(d){targetLane=Math.max(0,Math.min(2,targetLane+d))}
-function hitTest(o){return o.z>.83&&o.z<1.08&&o.lane===targetLane&&jumpY<125}
-function update(dt){
- time+=dt;distance+=dt;let difficulty=1+Math.min(2.2,distance/35);score+=Math.floor(dt*10*difficulty);
- const zSpeed=.44*difficulty;
- spawn-=dt;if(spawn<=0){spawn=Math.max(.34,.78-distance/90)+Math.random()*.28;spawnObstacle()}
- coinSpawn-=dt;if(coinSpawn<=0){coinSpawn=.35+Math.random()*.45;spawnCollect()}
- shoeSpawn-=dt;if(shoeSpawn<=0){shoeSpawn=1.2+Math.random()*1.8;spawnShoe()}
- lane+=(targetLane-lane)*Math.min(1,dt*14);
- if(jumpY>0){jumpY+=jumpV*dt;jumpV-=1850*dt;if(jumpY<=0){jumpY=0;jumpV=0}}
- for(const o of obstacles)o.z+=zSpeed*dt;
- for(const o of collect)o.z+=zSpeed*dt;
- for(const s of shoes){s.x+=s.vx*dt;s.y+=s.vy*dt;s.r+=(s.vx>0?1:-1)*7*dt;s.life-=dt;if(Math.hypot(roadX(targetLane,1)-s.x,roadY(1)-jumpY-s.y)<46){burst(s.x,s.y,'#ff5b52',24);end('CHAPPAL FROM NOWHERE.');return}}
- shoes=shoes.filter(s=>s.life>0&&s.x>-100&&s.x<W+100);
- for(const o of obstacles){if(!o.dead&&hitTest(o)){o.dead=true;shake=.3;burst(roadX(o.lane,o.z),roadY(o.z),'#ff4f4f',24);end(o.type==='shoe'?'CHAPPAL COMBO.':'GULLY BONK.');return}}
- for(const o of collect){if(!o.dead&&o.z>.88&&o.z<1.12&&o.lane===targetLane&&Math.abs(jumpY)<170){o.dead=true;if(o.type==='coin'){coins++;score+=100*combo;rage=Math.min(100,rage+8)}else{score+=250*combo;combo=Math.min(12,combo+1);rage=Math.min(100,rage+18);burst(roadX(o.lane,o.z),roadY(o.z),'#ffb52d',12)}}}
- obstacles=obstacles.filter(o=>!o.dead&&o.z<1.25);collect=collect.filter(o=>!o.dead&&o.z<1.25);
- if(rage>=100){power=4.5;rage=0;combo=5;burst(roadX(targetLane,1),roadY(1),'#ffd43b',40)}
- if(power>0){power-=dt;score+=Math.floor(dt*55);for(const o of obstacles)if(o.z>.65&&o.lane===targetLane)o.dead=true}
- for(const p of particles){p.x+=p.vx*dt;p.y+=p.vy*dt;p.vy+=600*dt;p.l-=dt}particles=particles.filter(p=>p.l>0);
- $('score').textContent=score;$('coins').textContent=coins;$('bar').style.width=rage+'%';shake=Math.max(0,shake-dt*2);
-}
-function render(){
- ctx.save();if(shake)ctx.translate((Math.random()-.5)*12,(Math.random()-.5)*10);background();
- obstacles.sort((a,b)=>a.z-b.z).forEach(drawObstacle);collect.sort((a,b)=>a.z-b.z).forEach(drawCollect);
- for(const s of shoes){ctx.save();ctx.translate(s.x,s.y);ctx.rotate(s.r);ctx.fillStyle='#151515';ctx.beginPath();ctx.ellipse(0,0,31,11,0,0,7);ctx.fill();ctx.fillStyle='#e4c49b';ctx.fillRect(-30,-3,20,5);ctx.restore()}
- player();
- for(const p of particles){ctx.globalAlpha=Math.max(0,p.l*2);ctx.fillStyle=p.c;ctx.fillRect(p.x,p.y,5,5)}ctx.globalAlpha=1;
- if(power>0){ctx.strokeStyle='#ffd43b';ctx.lineWidth=5;ctx.beginPath();ctx.arc(roadX(targetLane,1),roadY(1)-jumpY,58+Math.sin(time*15)*8,0,7);ctx.stroke();ctx.fillStyle='#ffd43b';ctx.font='900 12px Arial';ctx.textAlign='center';ctx.fillText('RAGE MODE',roadX(targetLane,1),roadY(1)-jumpY-72)}
- ctx.restore();
-}
+function hero(){let px=ground(track),py=H*.69-y;shadow(px,H*.74,27);x.save();x.translate(px,py);let s=1;ctxBody(s);x.restore()}
+function ctxBody(s){x.scale(s,s);let leg=Math.sin(t*15)*8;x.strokeStyle='#101318';x.lineWidth=8;x.lineCap='round';x.beginPath();x.moveTo(-8,25);x.lineTo(-13+leg*.25,48);x.moveTo(8,25);x.lineTo(13-leg*.25,48);x.stroke();x.fillStyle='#f4eee0';x.beginPath();x.roundRect(-14,-18,28,47,9);x.fill();x.fillStyle='#1a1d22';x.beginPath();x.arc(0,-28,12,0,7);x.fill();x.fillStyle='#d8ae88';x.beginPath();x.arc(0,-29,8,0,7);x.fill();x.strokeStyle='#1a1d22';x.lineWidth=7;x.beginPath();x.moveTo(-11,-8);x.lineTo(-24,7);x.moveTo(11,-8);x.lineTo(24,7);x.stroke()}
+function shadow(px,py,w){x.fillStyle='#0007';x.beginPath();x.ellipse(px,py,w,w*.25,0,0,7);x.fill()}
+function spawnObj(){let r=Math.random(),type=r<.22?'gap':r<.42?'tank':r<.58?'line':r<.73?'box':r<.88?'shoe':'drone';objs.push({lane:Math.floor(Math.random()*3),z:0,type})}
+function spawnCoin(){objs.push({lane:Math.floor(Math.random()*3),z:0,type:'coin'})}
+function drawObj(o){let px=ground(o.lane),py=H*.69-o.z*H*.39,s=.4+o.z*.9;x.save();x.translate(px,py);x.scale(s,s);
+if(o.type==='gap'){x.fillStyle='#05070b';x.fillRect(-90,12,180,60)}
+if(o.type==='tank'){x.fillStyle='#5f6872';x.beginPath();x.roundRect(-28,-32,56,40,13);x.fill();x.fillStyle='#7e8994';x.fillRect(-12,-42,24,10)}
+if(o.type==='line'){x.strokeStyle='#12151a';x.lineWidth=6;x.beginPath();x.moveTo(-65,-8);x.lineTo(65,-8);x.stroke();x.fillStyle='#e85c64';x.fillRect(-35,-20,13,12);x.fillStyle='#4ea7cf';x.fillRect(4,-20,13,12)}
+if(o.type==='box'){x.fillStyle='#c68b46';x.fillRect(-25,-25,50,50);x.strokeStyle='#6d4525';x.strokeRect(-25,-25,50,50)}
+if(o.type==='shoe'){x.fillStyle='#161616';x.beginPath();x.ellipse(0,0,31,11,0,0,7);x.fill();x.fillStyle='#e4c49b';x.fillRect(-30,-3,20,5)}
+if(o.type==='drone'){x.strokeStyle='#8a95a3';x.lineWidth=5;x.beginPath();x.moveTo(-32,0);x.lineTo(32,0);x.stroke();x.fillStyle='#b9c4d0';x.fillRect(-15,-7,30,14);x.fillStyle='#ffcc32';x.beginPath();x.arc(-32,0,5,0,7);x.arc(32,0,5,0,7);x.fill()}
+if(o.type==='coin'){x.fillStyle='#ffcf3c';x.shadowBlur=16;x.shadowColor='#ffcf3c';x.beginPath();x.arc(0,-5,14,0,7);x.fill();x.shadowBlur=0;x.fillStyle='#6e4d08';x.font='bold 14px Arial';x.textAlign='center';x.fillText('₹',0,0)}
+x.restore()}
+function burst(px,py,col,n=20){for(let i=0;i<n;i++)parts.push({x:px,y:py,vx:(Math.random()-.5)*260,vy:(Math.random()-.8)*230,l:.35+Math.random()*.5,c:col})}
+function jump(){if(y<4){vy=760;y=5}}
+function move(d){target=Math.max(0,Math.min(2,target+d))}
+function update(dt){t+=dt;score+=Math.floor(dt*12);track+=(target-track)*Math.min(1,dt*12);
+spawn-=dt;if(spawn<=0){spawn=.48+Math.random()*.5;spawnObj()}coinT-=dt;if(coinT<=0){coinT=.28+Math.random()*.35;spawnCoin()}
+if(y>0){y+=vy*dt;vy-=1850*dt;if(y<=0){y=0;vy=0}}
+for(const o of objs)o.z+=dt*(.55+Math.min(1.6,score/2500));
+for(const o of objs){if(o.z>.83&&o.z<1.06&&o.lane===target&&!o.dead){
+if(o.type==='coin'){o.dead=true;coins++;score+=100;energy=Math.min(100,energy+8);burst(ground(o.lane),H*.55,'#ffcf3c',10)}
+else if(o.type==='gap'){if(y<105){o.dead=true;end('MISSED THE GAP.');return}else{o.dead=true;score+=150;energy=Math.min(100,energy+18);burst(ground(o.lane),H*.58,'#8bd8ff',15)}}
+else if(o.type==='line'){if(y>80){o.dead=true;score+=100;energy=Math.min(100,energy+10)}else{end('CLOTHESLINE BONK.');return}}
+else if(o.type==='tank'||o.type==='box'||o.type==='shoe'){if(y<105){end(o.type==='shoe'?'CHAPPAL FROM THE SKY.':'ROOFTOP BONK.');return}else{o.dead=true;score+=130;energy=Math.min(100,energy+14)}} 
+else if(o.type==='drone'){if(y<125){end('DRONE GOT YOU.');return}else{o.dead=true;score+=160}}
+}}
+objs=objs.filter(o=>!o.dead&&o.z<1.25);
+if(energy>=100){energy=0;events.push({life:2});score+=500;burst(ground(target),H*.68,'#ffcf3c',45)}
+for(const e of events)e.life-=dt;events=events.filter(e=>e.life>0);
+for(const p of parts){p.x+=p.vx*dt;p.y+=p.vy*dt;p.vy+=550*dt;p.l-=dt}parts=parts.filter(p=>p.l>0);
+$('score').textContent=score;$('coins').textContent=coins;$('pb').style.width=energy+'%';shake=Math.max(0,shake-dt*2)}
+function render(){x.save();if(shake)x.translate((Math.random()-.5)*10,(Math.random()-.5)*8);bg();objs.sort((a,b)=>a.z-b.z).forEach(drawObj);hero();for(const p of parts){x.globalAlpha=Math.max(0,p.l*2);x.fillStyle=p.c;x.fillRect(p.x,p.y,5,5)}x.globalAlpha=1;if(events.length){x.fillStyle='#ffcf3c';x.font='900 13px Arial';x.textAlign='center';x.fillText('ADRENALINE RUSH',W/2,105)}x.restore()}
 function loop(now){if(!run)return;let dt=Math.min(.033,(now-last)/1000||0);last=now;update(dt);render();requestAnimationFrame(loop)}
-function start(){run=true;last=performance.now();time=0;distance=0;score=0;coins=0;combo=1;rage=0;power=0;lane=1;targetLane=1;jumpY=0;jumpV=0;obstacles=[];collect=[];shoes=[];particles=[];$('menu').style.display='none';$('over').style.display='none';requestAnimationFrame(loop)}
-function end(reason){run=false;if(score>best){best=score;localStorage.gullyRunBest=best;$('best').textContent=best}$('reason').textContent=reason;$('result').textContent='Score '+score+' • Coins '+coins+' • Best '+best;$('over').style.display='grid'}
-$('start').onclick=start;$('again').onclick=start;
-let sx=0,sy=0;addEventListener('touchstart',e=>{sx=e.touches[0].clientX;sy=e.touches[0].clientY},{passive:true});addEventListener('touchend',e=>{let dx=e.changedTouches[0].clientX-sx,dy=e.changedTouches[0].clientY-sy;if(Math.abs(dx)>Math.abs(dy)&&Math.abs(dx)>25)move(dx>0?1:-1);else if(dy<-25)jump()},{passive:true});
+function start(){run=true;t=0;score=0;coins=0;track=target=1;y=0;vy=0;energy=0;objs=[];parts=[];events=[];$('menu').style.display='none';$('over').style.display='none';last=performance.now();requestAnimationFrame(loop)}
+function end(reason){run=false;if(score>best){best=score;localStorage.rooftopBest=best;$('best').textContent=best}$('reason').textContent=reason;$('result').textContent='Score '+score+' • Coins '+coins+' • Best '+best;$('over').style.display='grid'}
+$('start').onclick=start;$('again').onclick=start;let sx=0,sy=0;
+addEventListener('touchstart',e=>{sx=e.touches[0].clientX;sy=e.touches[0].clientY},{passive:true});addEventListener('touchend',e=>{let dx=e.changedTouches[0].clientX-sx,dy=e.changedTouches[0].clientY-sy;if(Math.abs(dx)>Math.abs(dy)&&Math.abs(dx)>25)move(dx>0?1:-1);else if(dy<-25)jump()},{passive:true});
 addEventListener('keydown',e=>{if(e.key==='ArrowLeft'||e.key==='a')move(-1);if(e.key==='ArrowRight'||e.key==='d')move(1);if(e.key==='ArrowUp'||e.key===' ')jump()});
-background();player();
+bg();hero();
 </script></body></html>
